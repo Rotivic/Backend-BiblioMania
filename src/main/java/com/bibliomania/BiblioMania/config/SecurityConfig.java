@@ -25,7 +25,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Deshabilita CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register","/login").permitAll() // Permite el acceso sin autenticación a ciertos endpoints
+                .requestMatchers("/api/usuarios/register", "/api/usuarios/login").permitAll() // Permite el acceso sin autenticación a ciertos endpoints
                 .anyRequest().authenticated() // Requiere autenticación para todas las demás solicitudes
             )
             .sessionManagement(session -> session
