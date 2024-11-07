@@ -23,27 +23,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Deshabilita CSRF
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/usuarios/register", "/api/usuarios/login").permitAll() // Permite el acceso sin autenticación a ciertos endpoints
-                .anyRequest().authenticated() // Requiere autenticación para todas las demás solicitudes
+                .requestMatchers("/api/usuarios/register", "/api/usuarios/login").permitAll()
+                .anyRequest().authenticated() 
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Configura la sesión como sin estado
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Añade el filtro JWT
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Codificador de contraseñas
+        return new BCryptPasswordEncoder(); 
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        // Obtiene el AuthenticationManager utilizando la configuración de autenticación proporcionada
+    	
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
