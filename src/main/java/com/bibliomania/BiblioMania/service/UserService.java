@@ -1,11 +1,14 @@
 package com.bibliomania.BiblioMania.service;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.User;
 import com.bibliomania.BiblioMania.repository.UserRepository;
 
@@ -17,9 +20,27 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
     
     public User registrarUsuario(User usuario) {
+    	usuario.setVerificacionToken(UUID.randomUUID().toString());
+    	usuario.setVerified(false);
     	usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    	
+    	User savedUser = usuarioRepository.save(usuario);
+    	
+    	  // Construye la URL de verificación para el email
+        String verificationUrl = "http://localhost:8080/api/usuarios/verify?token=" + savedUser.getVerificacionToken();
+
+        // Envía el correo de verificación
+        String subject = "Verificación de cuenta - BiblioMania";
+        String message = "Gracias por registrarte en BiblioMania. Por favor, verifica tu cuenta haciendo clic en el siguiente enlace: \n" + verificationUrl;
+        
+        emailService.sendEmail(savedUser.getEmail(), subject, message);
+    	
+    	
         return usuarioRepository.save(usuario);
     }
 
@@ -62,6 +83,22 @@ public class UserService {
 
         usuarioActual.setPassword(passwordEncoder.encode(passwordNueva));
         
+    }
+    
+    public void sendVerificacionEmail(String email) {
+        String verificationUrl = "http://localhost:8080/api/users/verify-account?token=" + email;
+        String subject = "Verificación de cuenta";
+        String body = "Por favor, verifica tu cuenta haciendo clic en el siguiente enlace: " + verificationUrl;
+        emailService.sendEmail(email, subject, body);
+    }
+
+    public void verifyAccount(String token) {
+        User user = usuarioRepository.findByVerificacionToken(token)
+            .orElseThrow(() -> new ResourceNotFoundException("Token no válido"));
+        
+        user.setVerified(true);
+        user.setVerificacionToken(null); // Elimina el token después de la verificación
+        usuarioRepository.save(user);
     }
     
 }

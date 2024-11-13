@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bibliomania.BiblioMania.config.JwtUtil;
+import com.bibliomania.BiblioMania.dto.PasswordChangeRequest;
+import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.User;
 import com.bibliomania.BiblioMania.repository.UserRepository;
 import com.bibliomania.BiblioMania.service.UserService;
 
-import dto.PasswordChangeRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 
@@ -51,7 +53,7 @@ public class UserController {
                String token = jwtTokenUtil.generateToken(autenticado.getEmail());
                return ResponseEntity.ok(Map.of("token", token));
            } catch (Exception e) {
-               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Credenciales inválidas"));
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e));
            }
     }
     
@@ -78,5 +80,31 @@ public class UserController {
        
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token no encontrado en la solicitud");
     }
+
+    @PostMapping("/send-verification-email")
+    public ResponseEntity<String> sendVerificationEmail(@RequestBody String email) {
+        try {
+        	usuarioService.sendVerificacionEmail(email);
+            return ResponseEntity.ok("Email de verificación enviado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error al enviar el email de verificación.");
+        }
+    }
+    
+    @GetMapping("/verify-account")
+    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) {
+        try {
+        	usuarioService.verifyAccount(token);
+            return ResponseEntity.ok("Cuenta verificada exitosamente.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Token no válido o expirado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error al verificar la cuenta.");
+        }
+    }
+
     
 }
