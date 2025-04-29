@@ -1,0 +1,22 @@
+spring.application.name=BiblioMania
+spring.datasource.url=jdbc:mysql://localhost:3306/bibliomania
+spring.datasource.username=root
+spring.datasource.password=
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+
+# Configuración de inicialización de datos
+spring.sql.init.platform=mysql
+spring.sql.init.data-locations=classpath:data.sql
+
+# Configuración de JWT
+jwt.secret=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQSflKxwRJSMeKKF2QT4fwpMeJf36POk6yJVadQssw5c
+
+# Configuración de correo
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=victormfdezfdez@gmail.com
+spring.mail.password=hijk oxcm laqw hjcp
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true

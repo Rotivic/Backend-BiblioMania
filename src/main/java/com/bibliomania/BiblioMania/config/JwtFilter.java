@@ -1,8 +1,15 @@
 package com.bibliomania.BiblioMania.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.bibliomania.BiblioMania.service.UserDetailsServiceImpl;
 
 import jakarta.servlet.FilterChain; // Cambiado de javax a jakarta
 import jakarta.servlet.ServletException; // Cambiado de javax a jakarta
@@ -10,28 +17,40 @@ import jakarta.servlet.http.HttpServletRequest; // Cambiado de javax a jakarta
 import jakarta.servlet.http.HttpServletResponse; // Cambiado de javax a jakarta
 import java.io.IOException;
 
-@Component // Asegúrate de tener esta anotación
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        // Aquí va tu lógica para filtrar el JWT
-        String token = extractToken(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            // Lógica para establecer la autenticación
-        }
-        filterChain.doFilter(request, response);
-    }
+    @Autowired
+    private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    private String extractToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String jwt = null;
+
+        // Verifica que el encabezado contiene el token Bearer
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            username = jwtUtil.extractUsername(jwt);
         }
-        return null;
+
+        // Valida el token y configura el contexto de seguridad
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        chain.doFilter(request, response);
     }
 }
