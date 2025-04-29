@@ -1,19 +1,14 @@
 package com.bibliomania.BiblioMania.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.bibliomania.BiblioMania.dto.GrupoLecturaDTO;
 import com.bibliomania.BiblioMania.model.GrupoLectura;
 import com.bibliomania.BiblioMania.service.GrupoLecturaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/grupos")
@@ -23,8 +18,8 @@ public class GrupoLecturaController {
     private GrupoLecturaService grupoLecturaService;
 
     @GetMapping
-    public List<GrupoLectura> getAllGrupos() {
-        return grupoLecturaService.getAllGrupos();
+    public List<GrupoLecturaDTO> getAllGrupos() {
+    	return grupoLecturaService.getAllGrupos();
     }
 
     @GetMapping("/{id}")
@@ -42,5 +37,25 @@ public class GrupoLecturaController {
     public ResponseEntity<Void> deleteGrupo(@PathVariable Long id) {
         grupoLecturaService.deleteGrupo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{groupId}/join")
+    public ResponseEntity<?> joinGroup(@PathVariable Long groupId, @RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        boolean success = grupoLecturaService.addUserToGroup(userId, groupId);
+        return success ? ResponseEntity.ok("Usuario añadido al grupo") : ResponseEntity.badRequest().body("Error al unirse al grupo");
+    }
+
+    @PostMapping("/{groupId}/leave")
+    public ResponseEntity<?> leaveGroup(@PathVariable Long groupId, @RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        boolean success = grupoLecturaService.removeUserFromGroup(userId, groupId);
+        return success ? ResponseEntity.ok("Usuario eliminado del grupo") : ResponseEntity.badRequest().body("Error al salir del grupo");
+    }
+    
+    @GetMapping("/{grupoId}/isMember/{userId}")
+    public ResponseEntity<Boolean> isUserMember(@PathVariable Long grupoId, @PathVariable Long userId) {
+        boolean isMember = grupoLecturaService.isUserMember(userId, grupoId);
+        return ResponseEntity.ok(isMember);
     }
 }

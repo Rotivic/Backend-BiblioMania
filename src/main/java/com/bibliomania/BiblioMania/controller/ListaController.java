@@ -1,19 +1,13 @@
 package com.bibliomania.BiblioMania.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.bibliomania.BiblioMania.dto.ListaDTO;
 import com.bibliomania.BiblioMania.model.Lista;
 import com.bibliomania.BiblioMania.service.ListaService;
 
@@ -24,27 +18,58 @@ public class ListaController {
     @Autowired
     private ListaService listaService;
 
+    /**
+     * Obtiene todas las listas en formato DTO.
+     */
     @GetMapping
-    public List<Lista> getAllListas() {
+    public List<ListaDTO> getAllListas() {
         return listaService.getAllListas();
     }
 
+    /**
+     * Obtiene una lista por ID en formato DTO.
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<Lista> getListaById(@PathVariable Long id) {
-        Lista lista = listaService.getListaById(id);
-        return lista != null ? ResponseEntity.ok(lista) : ResponseEntity.notFound().build();
+    public ResponseEntity<ListaDTO> getListaById(@PathVariable Long id) {
+        return ResponseEntity.ok(listaService.getListaById(id));
     }
 
+    /**
+     * Crea una nueva lista.
+     */
     @PostMapping
-    public Lista createLista(@RequestBody Lista lista) {
-        return listaService.createLista(lista);
-    }
-    
-    @PutMapping("/{id}")
-    public Lista updateLista(@PathVariable Long id, @RequestBody Lista lista) {
-		return listaService.updateLista(id, lista);
+    public ResponseEntity<ListaDTO> createLista(@RequestBody Lista lista) {
+        return ResponseEntity.ok(listaService.createLista(lista));
     }
 
+    /**
+     * Actualiza una lista existente.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ListaDTO> updateLista(@PathVariable Long id, @RequestBody Lista lista) {
+        return ResponseEntity.ok(listaService.updateLista(id, lista));
+    }
+
+    /**
+     * Agrega un libro a una lista existente.
+     */
+    @PutMapping("/{id}/addBook")
+    public ResponseEntity<ListaDTO> addBookToLista(@PathVariable Long id, @RequestBody Map<String, Long> payload) {
+        Long bookId = payload.get("bookId");
+        return ResponseEntity.ok(listaService.addBookToLista(id, bookId));
+    }
+
+    /**
+     * Cambia el estado activo/inactivo de una lista.
+     */
+    @PutMapping("/{id}/toggleStatus")
+    public ResponseEntity<ListaDTO> toggleListaStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(listaService.toggleListaStatus(id));
+    }
+
+    /**
+     * Desactiva una lista.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLista(@PathVariable Long id) {
         listaService.deleteLista(id);

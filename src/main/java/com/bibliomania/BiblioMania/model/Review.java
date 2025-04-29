@@ -14,21 +14,24 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "reviews")
 public class Review {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_review")
-    private Long id;
-    private String comentario;
-    private int calificacion;
+	 @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    @Column(name = "id_review")
+	    private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private User usuario;
+	    private String comentario;
+	    private int calificacion;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_libro", nullable = false)
-    private Book libro;
+	    @ManyToOne(fetch = FetchType.EAGER)
+	    @JoinColumn(name = "id_usuario", nullable = false)
+	    private User usuario;
 
+	    @ManyToOne(fetch = FetchType.EAGER)
+	    @JoinColumn(name = "id_libro", nullable = false)
+	    private Book libro;
+
+    // Getters y Setters
+  
 	public String getContenido() {
 		return comentario;
 	}
@@ -61,7 +64,7 @@ public class Review {
 		this.libro = libro;
 	}
 
-    // Getters y Setters
+
     
     
 }

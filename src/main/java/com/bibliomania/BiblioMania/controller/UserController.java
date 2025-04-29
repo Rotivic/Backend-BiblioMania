@@ -1,12 +1,15 @@
 package com.bibliomania.BiblioMania.controller;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,7 +54,8 @@ public class UserController {
     	   try {
                User autenticado = usuarioService.login(usuario.getEmail(), usuario.getPassword());
                String token = jwtTokenUtil.generateToken(autenticado.getEmail());
-               return ResponseEntity.ok(Map.of("token", token));
+               String role = autenticado.getRol();
+               return ResponseEntity.ok(Map.of("token", token, "role", role));
            } catch (Exception e) {
                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e));
            }
@@ -105,6 +109,50 @@ public class UserController {
                 .body("Error al verificar la cuenta.");
         }
     }
+    
+    // Obtener usuarios activos
+    @GetMapping("/activos")
+    public ResponseEntity<List<User>> obtenerUsuariosActivos() {
+        List<User> usuariosActivos = usuarioService.obtenerTodosUsuarios()
+                .stream()
+                .filter(User::isVerified) // Solo los verificados
+                .toList();
+        return ResponseEntity.ok(usuariosActivos);
+    }
 
+    // Obtener usuarios deshabilitados
+    @GetMapping("/deshabilitados")
+    public ResponseEntity<List<User>> obtenerUsuariosDeshabilitados() {
+        return ResponseEntity.ok(usuarioService.obtenerUsuariosDeshabilitados());
+    }
+
+    // Reactivar usuario
+    @PutMapping("/reactivar/{id}")
+    public ResponseEntity<String> reactivarUsuario(@PathVariable Long id) {
+    	usuarioService.reactivarUsuario(id);
+        return ResponseEntity.ok("Usuario reactivado exitosamente");
+    }
+
+    // 🔹 Editar usuario
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editarUsuario(@PathVariable Long id, @RequestBody User usuarioActualizado) {
+        try {
+            User actualizado = usuarioService.editarUsuario(id, usuarioActualizado);
+            return ResponseEntity.ok(actualizado);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+    }
+
+    // 🔹 Inhabilitar usuario (Soft Delete)
+    @PutMapping("/{id}/inhabilitar")
+    public ResponseEntity<?> inhabilitarUsuario(@PathVariable Long id) {
+        try {
+            usuarioService.inhabilitarUsuario(id);
+            return ResponseEntity.ok("Usuario inhabilitado correctamente");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+    }
     
 }

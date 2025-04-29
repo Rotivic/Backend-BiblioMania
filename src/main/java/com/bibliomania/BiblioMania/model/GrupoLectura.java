@@ -7,19 +7,25 @@ import java.util.List;
 @Table(name = "grupos_lectura")
 public class GrupoLectura {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_grupo")
-    private Long idGrupo;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_grupo")  
+	private Long id;
 
     private String nombre;
     private String descripcion;
- 
-    @ManyToMany(mappedBy = "grupos", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<User> usuarios;
+    private boolean activo;
+    
+    @OneToMany(mappedBy = "grupo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UsuariosGrupos> usuarios;
 
 
     // Getters y Setters
+    
+    public Long getidGrupo() {
+    	return id;
+    }
+    
 	public String getNombre() {
 		return nombre;
 	}
@@ -34,6 +40,14 @@ public class GrupoLectura {
 
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
+	}
+	
+	public boolean getActivo() {
+		return activo;
+	}
+	
+	public void setActivo(boolean activo) {
+		this.activo = activo;
 	}
 
     

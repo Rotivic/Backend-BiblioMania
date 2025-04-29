@@ -1,10 +1,12 @@
 package com.bibliomania.BiblioMania.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,20 +30,17 @@ public class UserService {
     	usuario.setVerificacionToken(UUID.randomUUID().toString());
     	usuario.setVerified(false);
     	usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-    	
+    	usuario.setActivo(true); // Se registra activo por defecto
+
     	User savedUser = usuarioRepository.save(usuario);
     	
-    	  // Construye la URL de verificación para el email
+        // Construye la URL de verificación para el email
         String verificationUrl = "http://localhost:8080/api/usuarios/verify?token=" + savedUser.getVerificacionToken();
 
-        // Envía el correo de verificación
-        String subject = "Verificación de cuenta - BiblioMania";
-        String message = "Gracias por registrarte en BiblioMania. Por favor, verifica tu cuenta haciendo clic en el siguiente enlace: \n" + verificationUrl;
-        
-        emailService.sendEmail(savedUser.getEmail(), subject, message);
+        // Email de verificación (desactivado por ahora)
+        // emailService.sendEmail(savedUser.getEmail(), "Verificación de cuenta - BiblioMania", "Verifica tu cuenta aquí: " + verificationUrl);
     	
-    	
-        return usuarioRepository.save(usuario);
+        return savedUser;
     }
 
     public User login(String email, String password) {
@@ -50,6 +49,9 @@ public class UserService {
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Contraseña no coincide");
+        }
+        if (!user.isActivo()) {
+            throw new RuntimeException("Cuenta inactiva, contacta con soporte.");
         }
         return user;
     }
@@ -82,7 +84,7 @@ public class UserService {
         }
 
         usuarioActual.setPassword(passwordEncoder.encode(passwordNueva));
-        
+        usuarioRepository.save(usuarioActual);
     }
     
     public void sendVerificacionEmail(String email) {
@@ -101,4 +103,50 @@ public class UserService {
         usuarioRepository.save(user);
     }
     
+    public User getAuthenticatedUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String email;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            email = (String) principal;
+        } else {
+            throw new RuntimeException("No se pudo determinar el email del usuario autenticado.");
+        }
+
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+    }
+    
+    public List<User> obtenerTodosUsuarios() {
+        return usuarioRepository.findByActivoTrue(); 
+    }
+
+    public List<User> obtenerUsuariosDeshabilitados() {
+        return usuarioRepository.findByActivoFalse(); 
+    }
+    
+    public User editarUsuario(Long id, User usuarioActualizado) {
+        return usuarioRepository.findById(id).map(usuario -> {
+            usuario.setNombre(usuarioActualizado.getNombre());
+            usuario.setEmail(usuarioActualizado.getEmail());
+            usuario.setRol(usuarioActualizado.getRol());
+            return usuarioRepository.save(usuario);
+        }).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+
+    public void inhabilitarUsuario(Long id) {
+        User usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        usuario.setActivo(false);
+        usuarioRepository.save(usuario);
+    }
+
+    public void reactivarUsuario(Long id) {
+        User usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        usuario.setActivo(true);
+        usuarioRepository.save(usuario);
+    }
 }

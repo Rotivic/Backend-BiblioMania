@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,18 +21,36 @@ public class User {
     private boolean isVerified = false;
     
     @OneToMany(mappedBy = "usuario")
+    @OrderColumn
     private List<Review> reseñas;
 
     @OneToMany(mappedBy = "usuario")
+    @OrderColumn
     private List<Lista> listas;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-    		  name = "usuarios_grupos", 
-    	        joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"), 
-    	        inverseJoinColumns = @JoinColumn(name = "id_grupo", referencedColumnName = "id_grupo") 
-    )
-    private List<GrupoLectura> grupos;
+    @Column(nullable = false)
+    private boolean activo = true;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn
+    private List<UsuariosGrupos> grupos;
+    
+    @PrePersist
+    public void prePersist() {
+        if (activo == false) activo = true;
+        if (isVerified == true) isVerified = false;
+    }
+    
+    public User() {}
+    
+    public User(String name, String email, String password, String rol, boolean isVerified, boolean activo) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.rol = rol;
+        this.isVerified = isVerified;
+        this.activo = activo;
+    }
     
     // Getters y setters
     public Long getId() { return id; }
@@ -62,6 +81,12 @@ public class User {
 		this.isVerified = isVerified;
 	}
     
-    
+	public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
     
 }
