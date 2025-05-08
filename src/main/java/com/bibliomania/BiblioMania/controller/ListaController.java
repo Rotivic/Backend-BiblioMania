@@ -54,8 +54,8 @@ public class ListaController {
      * Agrega un libro a una lista existente.
      */
     @PutMapping("/{id}/addBook")
-    public ResponseEntity<ListaDTO> addBookToLista(@PathVariable Long id, @RequestBody Map<String, Long> payload) {
-        Long bookId = payload.get("bookId");
+    public ResponseEntity<ListaDTO> addBookToLista(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String bookId = payload.get("bookId");
         return ResponseEntity.ok(listaService.addBookToLista(id, bookId));
     }
 
@@ -74,5 +74,11 @@ public class ListaController {
     public ResponseEntity<Void> deleteLista(@PathVariable Long id) {
         listaService.deleteLista(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/usuario/{userId}")
+    public ResponseEntity<List<ListaDTO>> obtenerListasPorUsuario(@PathVariable Long userId) {
+        List<ListaDTO> listas = listaService.obtenerListasPorUsuario(userId);
+        return ResponseEntity.ok(listas);
     }
 }

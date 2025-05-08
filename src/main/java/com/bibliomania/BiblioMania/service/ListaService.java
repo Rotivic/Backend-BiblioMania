@@ -17,6 +17,7 @@ import com.bibliomania.BiblioMania.model.Lista;
 import com.bibliomania.BiblioMania.model.ListaLibro;
 import com.bibliomania.BiblioMania.model.User;
 import com.bibliomania.BiblioMania.repository.BookRepository;
+import com.bibliomania.BiblioMania.repository.ListaLibroRepository;
 import com.bibliomania.BiblioMania.repository.ListaRepository;
 
 import jakarta.transaction.Transactional;
@@ -33,6 +34,9 @@ public class ListaService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ListaLibroRepository listaLibroRepository;
+    
     /**
      * Convierte una entidad Lista en un DTO ListaDTO.
      */
@@ -103,25 +107,25 @@ public class ListaService {
     /**
      * Agrega un libro a una lista.
      */
-    public ListaDTO addBookToLista(Long listaId, Long bookId) {
+    public ListaDTO addBookToLista(Long listaId, String isbn) {
         Lista lista = listaRepository.findById(listaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lista not found with id: " + listaId));
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with isbn: " + isbn));
 
-        if (lista.getLibros() == null) {
-            lista.setLibros(new ArrayList<>());
+        // Verificar si ya existe en la lista
+        boolean yaExiste = listaLibroRepository.existsByListaAndLibro(lista, book);
+        if (yaExiste) {
+            throw new IllegalStateException("El libro ya está en la lista");
         }
 
-        ListaLibro listaLibro = new ListaLibro();
-        listaLibro.setLista(lista);
-        listaLibro.setLibro(book);
+        ListaLibro listaLibro = new ListaLibro(lista, book);
+        listaLibroRepository.save(listaLibro);
 
-        lista.getLibros().add(listaLibro);
-
-        return convertirAListaDTO(listaRepository.save(lista));
+        return convertirAListaDTO(listaRepository.findById(listaId).get());
     }
+
 
     /**
      * Cambia el estado activo/inactivo de una lista.
@@ -143,5 +147,15 @@ public class ListaService {
 
         lista.setActivo(false);
         listaRepository.save(lista);
+    }
+    
+    /**
+     * Lista por usuario
+     */
+    public List<ListaDTO> obtenerListasPorUsuario(Long userId) {
+        List<Lista> listas = listaRepository.findByUsuarioId(userId);
+        return listas.stream()
+                     .map(this::convertirAListaDTO)
+                     .collect(Collectors.toList());
     }
 }
