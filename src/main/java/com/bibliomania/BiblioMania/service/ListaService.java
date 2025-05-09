@@ -15,6 +15,7 @@ import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.Book;
 import com.bibliomania.BiblioMania.model.Lista;
 import com.bibliomania.BiblioMania.model.ListaLibro;
+import com.bibliomania.BiblioMania.model.ListaLibroId;
 import com.bibliomania.BiblioMania.model.User;
 import com.bibliomania.BiblioMania.repository.BookRepository;
 import com.bibliomania.BiblioMania.repository.ListaLibroRepository;
@@ -127,6 +128,27 @@ public class ListaService {
     }
 
 
+    /**
+     * Elimina un libro de una lista
+     */
+    public ListaDTO removeBookFromLista(Long listaId, String isbn) {
+        Lista lista = listaRepository.findById(listaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lista not found with id: " + listaId));
+
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with isbn: " + isbn));
+
+        ListaLibroId id = new ListaLibroId(listaId, book.getId());
+
+        ListaLibro listaLibro = listaLibroRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("La relación lista-libro no existe"));
+
+        listaLibroRepository.delete(listaLibro);
+
+        return convertirAListaDTO(listaRepository.findById(listaId).get());
+    }
+    
+    
     /**
      * Cambia el estado activo/inactivo de una lista.
      */

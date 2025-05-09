@@ -29,7 +29,7 @@ public class Book {
 
     @PrePersist
     public void prePersist() {
-        if (!activo) activo = true;  // Asegura que siempre sea true al crearse
+        if (!activo) activo = true;  
     }
     
     @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, orphanRemoval = true)

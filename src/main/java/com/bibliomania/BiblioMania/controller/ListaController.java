@@ -60,6 +60,19 @@ public class ListaController {
     }
 
     /**
+     * Eliminar un libro de una lista existente
+     */
+    @PutMapping("/{id}/removeBook")
+    public ResponseEntity<ListaDTO> removeBookFromLista(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> payload
+    ) {
+        String bookId = payload.get("bookId");
+        return ResponseEntity.ok(listaService.removeBookFromLista(id, bookId));
+    }
+
+    
+    /**
      * Cambia el estado activo/inactivo de una lista.
      */
     @PutMapping("/{id}/toggleStatus")

@@ -32,8 +32,26 @@ public class Review {
 
     // Getters y Setters
   
+	    
+	    
 	public String getContenido() {
 		return comentario;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getComentario() {
+		return comentario;
+	}
+
+	public void setComentario(String comentario) {
+		this.comentario = comentario;
 	}
 
 	public void setContenido(String comentario) {
