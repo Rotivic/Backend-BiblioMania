@@ -23,4 +23,11 @@ public class ForumThreadService {
     public ForumThread createThread(ForumThread forumThread) {
         return forumThreadRepository.save(forumThread);
     }
+    public ForumThread toggleThreadStatus(Long id) {
+        ForumThread thread = forumThreadRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Hilo no encontrado"));
+
+        thread.setCerrado(!thread.isCerrado()); // cambia true ↔ false
+        return forumThreadRepository.save(thread);
+    }
 }

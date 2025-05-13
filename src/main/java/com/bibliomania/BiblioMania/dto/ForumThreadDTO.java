@@ -10,7 +10,8 @@ public class ForumThreadDTO {
     private String titulo;
     private Long idGrupo;
     private List<MessageDTO> messages; 
-
+    private boolean cerrado;
+    
     public ForumThreadDTO(ForumThread forumThread) {
         this.idThread = forumThread.getIdThread();
         this.titulo = forumThread.getTitulo();
@@ -18,6 +19,7 @@ public class ForumThreadDTO {
         this.messages = forumThread.getMessages() != null ? 
             forumThread.getMessages().stream().map(MessageDTO::new).collect(Collectors.toList()) : 
             null;
+        this.cerrado = forumThread.isCerrado();
     }
 
     // Getters y Setters
@@ -51,5 +53,12 @@ public class ForumThreadDTO {
 
     public void setMessages(List<MessageDTO> messages) {
         this.messages = messages;
+    }
+    public boolean isCerrado() {
+        return cerrado;
+    }
+
+    public void setCerrado(boolean cerrado) {
+        this.cerrado = cerrado;
     }
 }

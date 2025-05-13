@@ -14,6 +14,9 @@ public class ForumThread  {
     
     private String titulo;
     
+    @Column(nullable = false)
+    private boolean cerrado = false;
+    
     @ManyToOne
     @JoinColumn(name = "id_grupo", nullable = false)
     private GrupoLectura grupo; 
@@ -55,7 +58,13 @@ public class ForumThread  {
 		this.messages = messages;
 	}  
     
-  
+	public boolean isCerrado() {
+	    return cerrado;
+	}
+
+	public void setCerrado(boolean cerrado) {
+	    this.cerrado = cerrado;
+	}
     
     
     

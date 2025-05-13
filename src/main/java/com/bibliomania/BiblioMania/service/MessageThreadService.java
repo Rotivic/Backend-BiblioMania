@@ -1,7 +1,10 @@
 package com.bibliomania.BiblioMania.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.ForumThread;
 import com.bibliomania.BiblioMania.model.Message;
@@ -41,6 +44,10 @@ public class MessageThreadService {
         ForumThread forumThread = forumThreadRepository.findById(threadId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hilo no encontrado con id: " + threadId));
 
+        if (forumThread.isCerrado()) {
+        	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este hilo está cerrado y no se pueden enviar mensajes.");
+        }
+        
         User usuario = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
 
