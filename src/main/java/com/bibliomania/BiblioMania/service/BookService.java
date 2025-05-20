@@ -42,7 +42,6 @@ public class BookService {
     public List<LibroDTO> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
-                .filter(Book::isActivo)
                 .map(this::convertirABookDTO)
                 .collect(Collectors.toList());
     }
