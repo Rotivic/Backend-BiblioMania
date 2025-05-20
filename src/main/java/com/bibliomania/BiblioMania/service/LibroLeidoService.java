@@ -54,4 +54,11 @@ public class LibroLeidoService {
                 ))
                 .toList();
     }
+    
+    @Transactional
+    public void eliminarLibroLeido(Long userId, String isbn) {
+        libroLeidoRepository.deleteByUsuarioIdAndLibroIsbn(userId, isbn);
+    }
+
+    
 }

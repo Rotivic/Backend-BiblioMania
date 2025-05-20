@@ -29,4 +29,12 @@ public class LibroLeidoController {
     public ResponseEntity<List<LibroLeidoDTO>> obtenerLibrosLeidos(@PathVariable Long userId) {
         return ResponseEntity.ok(libroLeidoService.obtenerLibrosLeidos(userId));
     }
+    
+    @DeleteMapping("/usuario/{userId}/isbn/{isbn}")
+    public ResponseEntity<Void> eliminarLibroLeido(@PathVariable Long userId, @PathVariable String isbn) {
+        libroLeidoService.eliminarLibroLeido(userId, isbn);
+        return ResponseEntity.noContent().build();
+    }
+
+    
 }
