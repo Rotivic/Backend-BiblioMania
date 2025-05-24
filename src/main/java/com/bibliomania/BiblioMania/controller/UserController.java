@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import com.bibliomania.BiblioMania.repository.UserRepository;
 import com.bibliomania.BiblioMania.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -38,11 +40,16 @@ public class UserController {
     private JwtUtil jwtTokenUtil; 
    
     @PostMapping("/register")
-    public ResponseEntity<?> registrarUsuario(@RequestBody User usuario) {
- 
-    	 if (usuarioService.existeUsuarioPorEmail(usuario.getEmail())) {
-             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El email ya está registrado.");
-         }
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody User usuario, BindingResult result) {
+        if (result.hasErrors()) {
+            // Devuelve el primer error encontrado (puedes personalizar esto)
+            String errorMsg = result.getFieldError().getDefaultMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+
+        if (usuarioService.existeUsuarioPorEmail(usuario.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El email ya está registrado.");
+        }
 
         User nuevoUsuario = usuarioService.registrarUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);

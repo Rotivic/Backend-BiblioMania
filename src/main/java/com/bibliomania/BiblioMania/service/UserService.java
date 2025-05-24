@@ -30,15 +30,15 @@ public class UserService {
     	usuario.setVerificacionToken(UUID.randomUUID().toString());
     	usuario.setVerified(false);
     	usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-    	usuario.setActivo(true); // Se registra activo por defecto
-
+    	usuario.setActivo(true); 
+    	usuario.setRol("USER");
     	User savedUser = usuarioRepository.save(usuario);
     	
         // Construye la URL de verificación para el email
         String verificationUrl = "http://localhost:8080/api/usuarios/verify?token=" + savedUser.getVerificacionToken();
 
         // Email de verificación (desactivado por ahora)
-        // emailService.sendEmail(savedUser.getEmail(), "Verificación de cuenta - BiblioMania", "Verifica tu cuenta aquí: " + verificationUrl);
+        emailService.sendEmail(savedUser.getEmail(), "Verificación de cuenta - BiblioMania", "Verifica tu cuenta aquí: " + verificationUrl);
     	
         return savedUser;
     }
@@ -70,7 +70,7 @@ public class UserService {
     public User actualizarUsuario(User usuarioActualizado) {
         User usuarioExistente = obtenerUsuarioActual();
 
-        usuarioExistente.setNombre(usuarioActualizado.getNombre());
+        usuarioExistente.setName(usuarioActualizado.getName());
         usuarioExistente.setEmail(usuarioActualizado.getEmail());
 
         return usuarioRepository.save(usuarioExistente);
@@ -129,7 +129,7 @@ public class UserService {
     
     public User editarUsuario(Long id, User usuarioActualizado) {
         return usuarioRepository.findById(id).map(usuario -> {
-            usuario.setNombre(usuarioActualizado.getNombre());
+            usuario.setName(usuarioActualizado.getName());
             usuario.setEmail(usuarioActualizado.getEmail());
             usuario.setRol(usuarioActualizado.getRol());
             return usuarioRepository.save(usuario);

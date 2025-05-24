@@ -49,7 +49,7 @@ public class ListaService {
     	            lista.getUsuario() != null ? new UsuarioDTO(
     	                    lista.getUsuario().getId(), 
     	                    lista.getUsuario().getEmail(), 
-    	                    lista.getUsuario().getNombre()
+    	                    lista.getUsuario().getName()
     	            ) : null,
     	            lista.getLibros() != null ? lista.getLibros().stream()
     	                    .map(libroLista -> libroLista.getLibro() != null ? new LibroDTO(

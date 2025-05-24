@@ -14,7 +14,7 @@ public class MessageDTO {
         this.contenido = message.getContenido();
         this.idThread = message.getForumThread().getIdThread();
         this.idUsuario = message.getUsuario().getId();
-        this.nombreUsuario = message.getUsuario().getNombre();
+        this.nombreUsuario = message.getUsuario().getName();
     }
 
     // Getters y Setters

@@ -3,6 +3,9 @@ package com.bibliomania.BiblioMania.model;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "user")
@@ -12,8 +15,13 @@ public class User {
     @Column(name = "id_usuario")
     private Long id;
 
+    @NotBlank(message = "El nombre es obligatorio")
     private String name;
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "El email no es válido")
     private String email;
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
     private String rol;
     
@@ -56,8 +64,8 @@ public class User {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getNombre() { return name; }
-    public void setNombre(String name) { this.name = name; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
