@@ -3,8 +3,8 @@ spring:
     name: BiblioMania
   datasource:
     url: jdbc:mysql://localhost:3306/bibliomania?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password:
+    username: rotvic
+    password: Ulmimor831991_?
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

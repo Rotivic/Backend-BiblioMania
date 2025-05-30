@@ -7,7 +7,9 @@ public class GrupoLecturaDTO {
     private String nombre;
     private String descripcion;
     private boolean activo;
-    private long miembros; // ✅ Agregamos el número de miembros
+    private Long idCreador;
+    private String nombreCreador;
+    private long miembros;
 
     public GrupoLecturaDTO(GrupoLectura grupo, long miembros) {
         this.idGrupo = grupo.getidGrupo();
@@ -15,6 +17,12 @@ public class GrupoLecturaDTO {
         this.descripcion = grupo.getDescripcion();
         this.activo = grupo.getActivo();
         this.miembros = miembros;
+
+        if(grupo.getCreador() != null ) {
+                this.idCreador = grupo.getCreador().getId();
+                this.nombreCreador = grupo.getCreador().getName();
+        }
+
     }
 
     // Getters
@@ -23,4 +31,6 @@ public class GrupoLecturaDTO {
     public String getDescripcion() { return descripcion; }
     public boolean isActivo() { return activo; }
     public long getMiembros() { return miembros; }
+    public Long getIdCreador() { return idCreador; }
+    public String getnombreCreador() { return nombreCreador; }
 }

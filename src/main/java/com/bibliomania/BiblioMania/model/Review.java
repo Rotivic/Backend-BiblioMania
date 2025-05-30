@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -18,7 +19,7 @@ public class Review {
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    @Column(name = "id_review")
 	    private Long id;
-
+	    @Lob
 	    private String comentario;
 	    private int calificacion;
 

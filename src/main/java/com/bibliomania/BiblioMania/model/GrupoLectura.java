@@ -16,6 +16,10 @@ public class GrupoLectura {
     private String descripcion;
     private boolean activo;
     
+    @ManyToOne
+    @JoinColumn(name = "id_creador")  
+    private User creador;
+    
     @OneToMany(mappedBy = "grupo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UsuariosGrupos> usuarios;
 
@@ -49,6 +53,12 @@ public class GrupoLectura {
 	public void setActivo(boolean activo) {
 		this.activo = activo;
 	}
+	public User getCreador() {
+	    return creador;
+	}
 
+	public void setCreador(User creador) {
+	    this.creador = creador;
+	}
     
 }

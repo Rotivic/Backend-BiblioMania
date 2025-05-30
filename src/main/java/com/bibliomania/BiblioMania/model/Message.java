@@ -11,6 +11,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMessage;
     
+    @Lob
     private String contenido;
     
     private LocalDateTime fechaEnvio = LocalDateTime.now();

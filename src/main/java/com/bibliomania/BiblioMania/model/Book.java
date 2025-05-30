@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.PrePersist;
@@ -21,7 +22,9 @@ public class Book {
 
     private String title;
     private String author;
+    @Lob
     private String isbn;
+    @Lob
     private String description;
     
     @Column(nullable = false)

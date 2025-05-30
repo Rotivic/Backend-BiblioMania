@@ -11,9 +11,11 @@ public class LibroLeido {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false) // 👈 Aquí está el fix
     private User usuario;
 
     @ManyToOne
+    @JoinColumn(name = "libro_id", nullable = false) // 👈 Y aquí también
     private Book libro;
 
     private LocalDateTime fechaLectura;
@@ -52,3 +54,4 @@ public class LibroLeido {
         this.fechaLectura = fechaLectura;
     }
 }
+
