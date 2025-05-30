@@ -33,10 +33,17 @@ public class GrupoLecturaController {
         return grupoLecturaService.createGrupo(grupoLectura);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGrupo(@PathVariable Long id) {
-        grupoLecturaService.deleteGrupo(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}/toggle")
+    public ResponseEntity<?> toggleGrupoActivo(@PathVariable Long id) {
+        boolean updated = grupoLecturaService.toggleGrupoActivo(id);
+        return updated ? ResponseEntity.ok("Estado del grupo actualizado") : ResponseEntity.notFound().build();
+    }
+    
+    @PutMapping("/{id}/descripcion")
+    public ResponseEntity<?> updateDescripcion(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String nuevaDescripcion = request.get("descripcion");
+        boolean updated = grupoLecturaService.updateDescripcionGrupo(id, nuevaDescripcion);
+        return updated ? ResponseEntity.ok("Descripción actualizada") : ResponseEntity.badRequest().body("No se pudo actualizar la descripción (¿grupo inactivo?)");
     }
 
     @PostMapping("/{groupId}/join")

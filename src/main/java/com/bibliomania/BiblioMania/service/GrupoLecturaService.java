@@ -38,6 +38,31 @@ public class GrupoLecturaService {
     public void deleteGrupo(Long id) {
         grupoLecturaRepository.deleteById(id);
     }
+    
+    public boolean toggleGrupoActivo(Long id) {
+        Optional<GrupoLectura> grupoOpt = grupoLecturaRepository.findById(id);
+        if (grupoOpt.isPresent()) {
+            GrupoLectura grupo = grupoOpt.get();
+            grupo.setActivo(!grupo.getActivo());
+            grupoLecturaRepository.save(grupo);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean updateDescripcionGrupo(Long id, String nuevaDescripcion) {
+        Optional<GrupoLectura> grupoOpt = grupoLecturaRepository.findById(id);
+        if (grupoOpt.isPresent()) {
+            GrupoLectura grupo = grupoOpt.get();
+            if (grupo.getActivo()) {
+                grupo.setDescripcion(nuevaDescripcion);
+                grupoLecturaRepository.save(grupo);
+                return true;
+            }
+        }
+        return false;
+    }
+    
 
     public boolean addUserToGroup(Long userId, Long groupId) {
         Optional<User> user = userRepository.findById(userId);

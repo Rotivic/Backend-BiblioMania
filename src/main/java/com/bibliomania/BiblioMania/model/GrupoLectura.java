@@ -14,7 +14,8 @@ public class GrupoLectura {
 
     private String nombre;
     private String descripcion;
-    private boolean activo;
+    @Column(nullable = false)
+    private boolean activo = true;
     
     @ManyToOne
     @JoinColumn(name = "id_creador")  
