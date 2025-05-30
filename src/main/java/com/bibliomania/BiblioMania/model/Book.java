@@ -22,7 +22,7 @@ public class Book {
 
     private String title;
     private String author;
-    @Lob
+    @Column(length = 20, unique = true)
     private String isbn;
     @Lob
     private String description;
