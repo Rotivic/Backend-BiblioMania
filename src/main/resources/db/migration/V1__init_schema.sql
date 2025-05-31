@@ -107,6 +107,23 @@ CREATE TABLE IF NOT EXISTS favorite_books (
     FOREIGN KEY (libro_id) REFERENCES book(id_libro) ON DELETE CASCADE
 );
 
+-- 🏷️ Categorías
+CREATE TABLE IF NOT EXISTS category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL UNIQUE,
+    descripcion TEXT
+);
+
+-- 🔗 Relación Libro–Categoría
+CREATE TABLE IF NOT EXISTS book_category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    libro_id BIGINT NOT NULL,
+    categoria_id BIGINT NOT NULL,
+    FOREIGN KEY (libro_id) REFERENCES book(id_libro) ON DELETE CASCADE,
+    FOREIGN KEY (categoria_id) REFERENCES category(id) ON DELETE CASCADE,
+    UNIQUE (libro_id, categoria_id)
+);
+
 -- 🔹 Habilitar claves foráneas nuevamente
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -200,3 +217,22 @@ INSERT INTO favorite_books (usuario_id, libro_id) VALUES
 (2, 2),
 (3, 4),
 (2, 5);
+
+-- 🏷️ Categorías
+INSERT INTO category (id, nombre, descripcion) VALUES
+(1, 'Realismo Mágico', 'Obras literarias con elementos mágicos en contextos realistas'),
+(2, 'Clásicos', 'Obras literarias universales de relevancia histórica'),
+(3, 'Ficción Infantil', 'Literatura para niños y adolescentes'),
+(4, 'Narrativa Experimental', 'Narrativas no convencionales, rompedoras'),
+(5, 'Misterio', 'Libros con tramas de suspenso, misterio o crimen');
+
+-- 🔗 Asociación Libro–Categoría
+INSERT INTO book_category (libro_id, categoria_id) VALUES
+(1, 1), -- Cien Años de Soledad -> Realismo Mágico
+(2, 2), -- Don Quijote -> Clásicos
+(3, 3), -- El Principito -> Ficción Infantil
+(4, 4), -- Rayuela -> Narrativa Experimental
+(5, 5), -- La Sombra del Viento -> Misterio
+(1, 2), -- Cien Años de Soledad también como Clásico
+(4, 1); -- Rayuela también como Realismo Mágico
+
