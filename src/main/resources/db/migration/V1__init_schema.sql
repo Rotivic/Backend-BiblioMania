@@ -124,6 +124,33 @@ CREATE TABLE IF NOT EXISTS book_category (
     UNIQUE (libro_id, categoria_id)
 );
 
+
+-- 🔔 Notificaciones
+CREATE TABLE IF NOT EXISTS notificacion (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    titulo VARCHAR(255) NOT NULL,
+    mensaje TEXT NOT NULL,
+    leida BOOLEAN DEFAULT 0,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    usuario_id BIGINT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES user(id_usuario) ON DELETE CASCADE
+);
+
+
+-- ⚠️ Reportes
+CREATE TABLE IF NOT EXISTS reporte_mensaje (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    mensaje_id BIGINT,
+    reportado_por_id BIGINT,
+    motivo TEXT,
+    urgencia ENUM('BAJA', 'MEDIA', 'ALTA'),
+    estado ENUM('PENDIENTE', 'EN_PROCESO', 'RESUELTO'),
+    fecha TIMESTAMP,
+
+    FOREIGN KEY (mensaje_id) REFERENCES messages(id_message) ON DELETE CASCADE,
+    FOREIGN KEY (reportado_por_id) REFERENCES user(id_usuario) ON DELETE CASCADE
+);
+
 -- 🔹 Habilitar claves foráneas nuevamente
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -235,4 +262,21 @@ INSERT INTO book_category (libro_id, categoria_id) VALUES
 (5, 5), -- La Sombra del Viento -> Misterio
 (1, 2), -- Cien Años de Soledad también como Clásico
 (4, 1); -- Rayuela también como Realismo Mágico
+
+
+INSERT INTO notificacion (titulo, mensaje, leida, fecha_creacion, usuario_id) VALUES
+('¡Nuevo libro recomendado!', 'Te podría interesar "Rayuela" basado en tus lecturas.', 0, '2024-05-20 10:00:00', 1),
+('¡Has completado una lista!', 'Felicidades por completar "Favoritos de Juan".', 0, '2024-05-21 12:00:00', 1),
+('Nuevo hilo en tu grupo', 'Se ha publicado un nuevo hilo en "Club de Lectura García Márquez".', 0, '2024-05-22 08:30:00', 2),
+('Bienvenido al grupo', 'Ahora eres parte del grupo "Realismo Mágico". ¡Disfruta leyendo!', 1, '2024-04-01 10:00:00', 1),
+('Nuevo mensaje en el foro', 'Juan ha comentado sobre "Cien Años de Soledad".', 1, '2024-04-01 11:15:00', 2);
+
+
+-- INSERTS para reporte_mensaje
+INSERT INTO reporte_mensaje (mensaje_id, reportado_por_id, motivo, urgencia, estado, fecha) VALUES
+(1, 1, 'El mensaje contiene lenguaje ofensivo.', 'ALTA', 'EN_PROCESO', NOW()),
+(2, 2, 'El mensaje parece fuera de tema.', 'MEDIA', 'PENDIENTE', NOW()),
+(3, 3, 'Spam detectado en el mensaje.', 'ALTA', 'RESUELTO', NOW()),
+(4, 1, 'Comentario poco respetuoso.', 'BAJA', 'PENDIENTE', NOW()),
+(5, 2, 'Duda sobre si el contenido es apropiado.', 'MEDIA', 'EN_PROCESO', NOW()); 
 

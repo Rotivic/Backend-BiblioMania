@@ -43,6 +43,9 @@ public class User {
     @OrderColumn
     private List<UsuariosGrupos> grupos;
     
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notificacion> notificaciones;
+    
     @PrePersist
     public void prePersist() {
         if (activo == false) activo = true;

@@ -18,52 +18,66 @@ import java.util.List;
 
 @Service
 public class MessageThreadService {
-    
-    private final MessageRepository messageRepository;
-    private final ForumThreadRepository forumThreadRepository;
-    private final UserRepository userRepository;
 
-    public MessageThreadService(MessageRepository messageRepository, 
-                                ForumThreadRepository forumThreadRepository, 
-                                UserRepository userRepository) {
-        this.messageRepository = messageRepository;
-        this.forumThreadRepository = forumThreadRepository;
-        this.userRepository = userRepository;
-    }
+	private final MessageRepository messageRepository;
+	private final ForumThreadRepository forumThreadRepository;
+	private final UserRepository userRepository;
+	private final NotificationDispatcher notificationDispatcher;
 
-    public List<Message> getMessagesByForumThread(Long threadId) {
-        return messageRepository.findByForumThread_IdOrderByFechaEnvioAsc(threadId);
-    }
+	public MessageThreadService(MessageRepository messageRepository, ForumThreadRepository forumThreadRepository,
+			UserRepository userRepository, NotificationDispatcher notificationDispatcher) {
+		this.messageRepository = messageRepository;
+		this.forumThreadRepository = forumThreadRepository;
+		this.userRepository = userRepository;
+		this.notificationDispatcher = notificationDispatcher;
+	}
 
-    @Transactional
-    public Message createMessage(Long threadId, Long userId, String contenido) {
-        if (contenido == null || contenido.trim().isEmpty()) {
-            throw new IllegalArgumentException("El mensaje no puede estar vacío.");
-        }
+	public List<Message> getMessagesByForumThread(Long threadId) {
+		return messageRepository.findByForumThread_IdOrderByFechaEnvioAsc(threadId);
+	}
 
-        ForumThread forumThread = forumThreadRepository.findById(threadId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hilo no encontrado con id: " + threadId));
+	@Transactional
+	public Message createMessage(Long threadId, Long userId, String contenido) {
+		if (contenido == null || contenido.trim().isEmpty()) {
+			throw new IllegalArgumentException("El mensaje no puede estar vacío.");
+		}
 
-        if (forumThread.isCerrado()) {
-        	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este hilo está cerrado y no se pueden enviar mensajes.");
-        }
-        
-        User usuario = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+		ForumThread forumThread = forumThreadRepository.findById(threadId)
+				.orElseThrow(() -> new ResourceNotFoundException("Hilo no encontrado con id: " + threadId));
 
-        Message message = new Message();
-        message.setContenido(contenido);
-        message.setForumThread(forumThread);
-        message.setUsuario(usuario);
-        message.setFechaEnvio(LocalDateTime.now());
+		if (forumThread.isCerrado()) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+					"Este hilo está cerrado y no se pueden enviar mensajes.");
+		}
 
-        return messageRepository.save(message);
-    }
+		User usuario = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
 
-    public void deleteMessage(Long messageId) {
-        if (!messageRepository.existsById(messageId)) {
-            throw new ResourceNotFoundException("Mensaje no encontrado con id: " + messageId);
-        }
-        messageRepository.deleteById(messageId);
-    }
+		Message message = new Message();
+		message.setContenido(contenido);
+		message.setForumThread(forumThread);
+		message.setUsuario(usuario);
+		message.setFechaEnvio(LocalDateTime.now());
+
+		Message saved = messageRepository.save(message);
+
+		// Notificar a los participantes anteriores del hilo, excepto al autor del
+		// mensaje
+		List<Long> participantIds = messageRepository.findDistinctUserIdsByThread(threadId);
+		participantIds.removeIf(id -> id.equals(userId)); // excluir al que escribe
+
+		if (!participantIds.isEmpty()) {
+			notificationDispatcher.dispatchToUsers(participantIds, "Nuevo mensaje en hilo", usuario.getName()
+					+ " ha publicado un nuevo mensaje en el hilo \"" + forumThread.getTitulo() + "\".");
+		}
+
+		return saved;
+	}
+
+	public void deleteMessage(Long messageId) {
+		if (!messageRepository.existsById(messageId)) {
+			throw new ResourceNotFoundException("Mensaje no encontrado con id: " + messageId);
+		}
+		messageRepository.deleteById(messageId);
+	}
 }

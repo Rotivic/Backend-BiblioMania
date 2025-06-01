@@ -18,11 +18,16 @@ public class FavoriteBookService {
     private final FavoriteBookRepository favoriteRepo;
     private final UserRepository userRepo;
     private final BookRepository bookRepo;
+    private final NotificationDispatcher notificationDispatcher;
 
-    public FavoriteBookService(FavoriteBookRepository favoriteRepo, UserRepository userRepo, BookRepository bookRepo) {
+    public FavoriteBookService(FavoriteBookRepository favoriteRepo,
+                               UserRepository userRepo,
+                               BookRepository bookRepo,
+                               NotificationDispatcher notificationDispatcher) {
         this.favoriteRepo = favoriteRepo;
         this.userRepo = userRepo;
         this.bookRepo = bookRepo;
+        this.notificationDispatcher = notificationDispatcher;
     }
 
     public FavoriteBook addFavorite(Long userId, String bookId) {
@@ -33,7 +38,16 @@ public class FavoriteBookService {
             FavoriteBook fav = new FavoriteBook();
             fav.setUsuario(user);
             fav.setLibro(book);
-            return favoriteRepo.save(fav);
+            FavoriteBook saved = favoriteRepo.save(fav);
+
+            // Notificar al propio usuario
+            notificationDispatcher.dispatchToUser(
+                userId,
+                "Libro añadido a favoritos",
+                "Has añadido \"" + book.getTitle() + "\" a tus favoritos."
+            );
+
+            return saved;
         } else {
             throw new IllegalStateException("Libro ya está en favoritos.");
         }
