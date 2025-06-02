@@ -1,5 +1,12 @@
 package com.bibliomania.BiblioMania.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.bibliomania.BiblioMania.dto.BookCategoryDTO;
 import com.bibliomania.BiblioMania.dto.CategoryDTO;
 import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
@@ -9,11 +16,6 @@ import com.bibliomania.BiblioMania.model.Category;
 import com.bibliomania.BiblioMania.repository.BookCategoryRepository;
 import com.bibliomania.BiblioMania.repository.BookRepository;
 import com.bibliomania.BiblioMania.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -27,7 +29,6 @@ public class CategoryService {
     @Autowired
     private BookCategoryRepository bookCategoryRepository;
 
-    // Conversores
     private CategoryDTO convertirACategoryDTO(Category category) {
         return new CategoryDTO(category.getId(), category.getNombre());
     }
@@ -43,7 +44,6 @@ public class CategoryService {
         return new BookCategoryDTO(bc);
     }
 
-    // CRUD Category
     public CategoryDTO createCategory(CategoryDTO dto) {
         Category saved = categoryRepository.save(convertirAEntidad(dto));
         return convertirACategoryDTO(saved);
@@ -56,10 +56,10 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    // Relación book-category
-    public BookCategoryDTO assignCategoryToBook(BookCategoryDTO dto) {
-        Book libro = bookRepository.findById(dto.getLibroId())
-                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con ID: " + dto.getLibroId()));
+    // NUEVO: Usando ISBN
+    public BookCategoryDTO assignCategoryToBookByIsbn(BookCategoryDTO dto) {
+        Book libro = bookRepository.findByIsbn(dto.getLibroIsbn())
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con ISBN: " + dto.getLibroIsbn()));
         Category categoria = categoryRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + dto.getCategoriaId()));
 
@@ -70,10 +70,39 @@ public class CategoryService {
         return convertirABookCategoryDTO(bookCategoryRepository.save(bc));
     }
 
-    public List<BookCategoryDTO> getCategoriesForBook(Long bookId) {
-        return bookCategoryRepository.findByLibroId(bookId)
+    // NUEVO: Usando ISBN
+    public List<CategoryDTO> getCategoriesForBookByIsbn(String isbn) {
+        Book libro = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con ISBN: " + isbn));
+
+        return bookCategoryRepository.findByLibroId(libro.getId())
                 .stream()
-                .map(this::convertirABookCategoryDTO)
+                .map(BookCategory::getCategoria)
+                .map(this::convertirACategoryDTO)
                 .collect(Collectors.toList());
     }
+
+    public Category updateCategoryName(Long id, String newName) {
+        Category cat = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
+        
+        cat.setNombre(newName);
+        return categoryRepository.save(cat);
+    }
+    
+    public void removeCategoryFromBook(String isbn, Long categoryId) {
+        Book libro = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con ISBN: " + isbn));
+        Category categoria = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + categoryId));
+
+        Optional<BookCategory> bookCategoryOpt = bookCategoryRepository.findByLibroAndCategoria(libro, categoria);
+
+        if (bookCategoryOpt.isPresent()) {
+            bookCategoryRepository.delete(bookCategoryOpt.get());
+        } else {
+            throw new ResourceNotFoundException("Relación libro-categoría no encontrada");
+        }
+    }
+    
 }

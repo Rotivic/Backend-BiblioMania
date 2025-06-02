@@ -1,12 +1,16 @@
 // BookCategoryRepository.java
 package com.bibliomania.BiblioMania.repository;
 
-import com.bibliomania.BiblioMania.model.BookCategory;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import com.bibliomania.BiblioMania.model.Book;
+import com.bibliomania.BiblioMania.model.BookCategory;
+import com.bibliomania.BiblioMania.model.Category;
 
 public interface BookCategoryRepository extends JpaRepository<BookCategory, Long> {
 	List<BookCategory> findByLibroId(Long bookId);
@@ -22,5 +26,6 @@ public interface BookCategoryRepository extends JpaRepository<BookCategory, Long
 			    ORDER BY COUNT(bc.categoria.id) DESC
 			""")
 	List<Object[]> findCategoryUsageByUserId(@Param("userId") Long userId);
+	Optional<BookCategory> findByLibroAndCategoria(Book libro, Category categoria);
 
 }

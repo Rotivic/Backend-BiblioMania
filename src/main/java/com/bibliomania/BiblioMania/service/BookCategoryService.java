@@ -25,4 +25,7 @@ public class BookCategoryService {
     public List<BookCategory> findByCategoryId(Long categoriaId) {
         return repository.findByCategoriaId(categoriaId);
     }
+    public void delete(BookCategory bookCategory) {
+    	repository.delete(bookCategory);
+    }
 }

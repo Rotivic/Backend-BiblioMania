@@ -7,13 +7,15 @@ public class BookCategoryDTO {
     private Long libroId;
     private Long categoriaId;
     private int prioridad;
-
+    private String libroIsbn;
+    
     public BookCategoryDTO() {}
 
     public BookCategoryDTO(BookCategory bc) {
         this.id = bc.getId();
         this.libroId = bc.getLibro().getId();
         this.categoriaId = bc.getCategoria().getId();
+        this.libroIsbn = bc.getLibro().getIsbn();
     }
 
     public Long getId() { return id; }
@@ -27,4 +29,15 @@ public class BookCategoryDTO {
 
     public int getPrioridad() { return prioridad; }
     public void setPrioridad(int prioridad) { this.prioridad = prioridad; }
+
+	public String getLibroIsbn() {
+		return libroIsbn;
+	}
+
+	public void setLibroIsbn(String libroIsbn) {
+		this.libroIsbn = libroIsbn;
+	}
+    
+    
+    
 }
