@@ -30,7 +30,6 @@ public class CategoryController {
 
     @PostMapping
     public CategoryDTO createCategory(@RequestBody CategoryDTO categoryDTO) {
-    	System.out.println("📥 Recibido assignCategoryToBook");
         return categoryService.createCategory(categoryDTO);
     }
 
@@ -65,4 +64,15 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Categoría no encontrada.");
+        }
+    }
+
+    
 }

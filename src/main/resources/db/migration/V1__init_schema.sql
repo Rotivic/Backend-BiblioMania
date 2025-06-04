@@ -110,8 +110,7 @@ CREATE TABLE IF NOT EXISTS favorite_books (
 -- 🏷️ Categorías
 CREATE TABLE IF NOT EXISTS category (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255) NOT NULL UNIQUE,
-    descripcion TEXT
+    nombre VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- 🔗 Relación Libro–Categoría
@@ -246,12 +245,12 @@ INSERT INTO favorite_books (usuario_id, libro_id) VALUES
 (2, 5);
 
 -- 🏷️ Categorías
-INSERT INTO category (id, nombre, descripcion) VALUES
-(1, 'Realismo Mágico', 'Obras literarias con elementos mágicos en contextos realistas'),
-(2, 'Clásicos', 'Obras literarias universales de relevancia histórica'),
-(3, 'Ficción Infantil', 'Literatura para niños y adolescentes'),
-(4, 'Narrativa Experimental', 'Narrativas no convencionales, rompedoras'),
-(5, 'Misterio', 'Libros con tramas de suspenso, misterio o crimen');
+INSERT INTO category (id, nombre) VALUES
+(1, 'Realismo Mágico'),
+(2, 'Clásicos'),
+(3, 'Ficción Infantil'),
+(4, 'Narrativa Experimental'),
+(5, 'Misterio');
 
 -- 🔗 Asociación Libro–Categoría
 INSERT INTO book_category (libro_id, categoria_id) VALUES

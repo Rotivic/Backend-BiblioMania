@@ -5,6 +5,7 @@ import com.bibliomania.BiblioMania.model.Category;
 public class CategoryDTO {
     private Long id;
     private String nombre;
+    private String descripcion;
 
     public CategoryDTO() {}
 
@@ -41,4 +42,15 @@ public class CategoryDTO {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+    
+    
+    
 }

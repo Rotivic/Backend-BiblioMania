@@ -52,26 +52,35 @@ public class ReporteMensajeService {
         User usuario = userRepository.findById(dto.getUsuarioId())
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Message mensaje = messageRepository.findById(dto.getMensajeId())
-            .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
-
         ReporteMensaje reporte = new ReporteMensaje();
         reporte.setReportadoPor(usuario);
-        reporte.setMensaje(mensaje);
         reporte.setMotivo(dto.getMotivo());
         reporte.setUrgencia(dto.getUrgencia());
         reporte.setEstado(EstadoReporte.PENDIENTE);
 
+        // Solo asignar mensaje si se proporciona un ID
+        if (dto.getMensajeId() != null) {
+            Message mensaje = messageRepository.findById(dto.getMensajeId())
+                .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
+            reporte.setMensaje(mensaje);
+        }
+
         ReporteMensaje guardado = reporteMensajeRepository.save(reporte);
 
         // Notificar admins
-        String titulo = "📢 Nuevo reporte de mensaje (" + dto.getUrgencia().name() + ")";
-        String contenido = "Mensaje reportado por usuario " + usuario.getName() + ": " + dto.getMotivo();
+        String titulo = "📢 Nuevo reporte " +
+            (dto.getMensajeId() != null ? "de mensaje" : "general") +
+            " (" + dto.getUrgencia().name() + ")";
+        String contenido = (dto.getMensajeId() != null
+            ? "Mensaje reportado por usuario " + usuario.getName()
+            : "Reporte general enviado por usuario " + usuario.getName()) +
+            ": " + dto.getMotivo();
+
         notificationDispatcher.notificarAdmins(titulo, contenido);
 
         return new ReporteMensajeDTO(
             guardado.getId(),
-            guardado.getMensaje().getIdMessage(),
+            guardado.getMensaje() != null ? guardado.getMensaje().getIdMessage() : null,
             guardado.getReportadoPor().getId(),
             guardado.getMotivo(),
             guardado.getUrgencia(),
@@ -79,6 +88,7 @@ public class ReporteMensajeService {
             guardado.getFecha()
         );
     }
+
     
  // Obtener todos los reportes ordenados por fecha desc
     public List<ReporteMensajeDTO> obtenerTodos() {
@@ -86,7 +96,7 @@ public class ReporteMensajeService {
             .stream()
             .map(r -> new ReporteMensajeDTO(
                 r.getId(),
-                r.getMensaje().getIdMessage(),
+                r.getMensaje() != null ? r.getMensaje().getIdMessage() : null, 
                 r.getReportadoPor().getId(),
                 r.getMotivo(),
                 r.getUrgencia(),
@@ -95,14 +105,16 @@ public class ReporteMensajeService {
             ))
             .collect(Collectors.toList());
     }
+
     
  // Obtener un reporte específico
     public ReporteMensajeDTO obtenerPorId(Long id) {
         ReporteMensaje r = reporteMensajeRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
         return new ReporteMensajeDTO(
             r.getId(),
-            r.getMensaje().getIdMessage(),
+            r.getMensaje() != null ? r.getMensaje().getIdMessage() : null, // 🔁 prevenir null
             r.getReportadoPor().getId(),
             r.getMotivo(),
             r.getUrgencia(),
@@ -110,17 +122,19 @@ public class ReporteMensajeService {
             r.getFecha()
         );
     }
+
     
  // Actualizar el estado de un reporte
     public ReporteMensajeDTO actualizarEstado(Long id, EstadoReporte nuevoEstado) {
         ReporteMensaje r = reporteMensajeRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
         r.setEstado(nuevoEstado);
         ReporteMensaje actualizado = reporteMensajeRepository.save(r);
 
         return new ReporteMensajeDTO(
             actualizado.getId(),
-            actualizado.getMensaje().getIdMessage(),
+            actualizado.getMensaje() != null ? actualizado.getMensaje().getIdMessage() : null, // 🔁 prevenir null
             actualizado.getReportadoPor().getId(),
             actualizado.getMotivo(),
             actualizado.getUrgencia(),
@@ -128,7 +142,7 @@ public class ReporteMensajeService {
             actualizado.getFecha()
         );
     }
-    
+
     public List<ReporteMensajeDTO> obtenerPorUsuario(Long usuarioId) {
         List<ReporteMensaje> reportes = reporteMensajeRepository.findByUsuarioReportante(usuarioId);
         return reportes.stream()

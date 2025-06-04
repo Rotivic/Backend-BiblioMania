@@ -34,9 +34,18 @@ public class ReporteMensajeDTO {
 	// Getters y setters
   
     
+	
 	public Long getMensajeId() {
 		return mensajeId;
 	}
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setMensajeId(Long mensajeId) {
 		this.mensajeId = mensajeId;
 	}
