@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bibliomania.BiblioMania.dto.UserStatisticsDTO;
+import com.bibliomania.BiblioMania.repository.ActividadLecturaRepository;
 import com.bibliomania.BiblioMania.repository.BookCategoryRepository;
 import com.bibliomania.BiblioMania.repository.CategoryRepository;
 import com.bibliomania.BiblioMania.repository.LibroLeidoRepository;
@@ -29,10 +30,17 @@ public class StatisticsService {
     @Autowired
     private CategoryRepository categoryRepo;
 
+    @Autowired
+    private ActividadLecturaRepository actividadRepo;
+
+    
     public UserStatisticsDTO getUserStatistics(Long userId) {
         int totalReadBooks = leidoRepo.countByUsuarioId(userId);
         int totalListsCreated = listaRepo.countByUsuarioId(userId);
-
+        Integer totalMinutos = actividadRepo.totalMinutosPorUsuario(userId);
+        
+        if (totalMinutos == null) totalMinutos = 0;
+        
         // Lecturas por mes
         List<Object[]> booksPerMonth = leidoRepo.countBooksReadPerMonth(userId);
         Map<String, Integer> booksReadPerMonth = new LinkedHashMap<>();
@@ -62,7 +70,8 @@ public class StatisticsService {
             totalReadBooks,
             totalListsCreated,
             booksReadPerMonth,
-            categoriesConsumed
+            categoriesConsumed,
+            totalMinutos
         );
     }
 }

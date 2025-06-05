@@ -150,6 +150,19 @@ CREATE TABLE IF NOT EXISTS reporte_mensaje (
     FOREIGN KEY (reportado_por_id) REFERENCES user(id_usuario) ON DELETE CASCADE
 );
 
+-- 📘 Actividades de lectura
+CREATE TABLE IF NOT EXISTS actividad_lectura (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id BIGINT NOT NULL,
+    libro_id BIGINT NOT NULL,
+    descripcion TEXT,
+    minutos_invertidos INT NOT NULL,
+    fecha DATE NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES user(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (libro_id) REFERENCES book(id_libro) ON DELETE CASCADE
+);
+
+
 -- 🔹 Habilitar claves foráneas nuevamente
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -278,4 +291,11 @@ INSERT INTO reporte_mensaje (mensaje_id, reportado_por_id, motivo, urgencia, est
 (3, 3, 'Spam detectado en el mensaje.', 'ALTA', 'RESUELTO', NOW()),
 (4, 1, 'Comentario poco respetuoso.', 'BAJA', 'PENDIENTE', NOW()),
 (5, 2, 'Duda sobre si el contenido es apropiado.', 'MEDIA', 'EN_PROCESO', NOW()); 
+
+INSERT INTO actividad_lectura (usuario_id, libro_id, descripcion, minutos_invertidos, fecha) VALUES
+(1, 1, 'Lectura del capítulo 1 y 2', 30, '2024-06-01'),
+(1, 1, 'Análisis del personaje Aureliano', 45, '2024-06-02'),
+(2, 2, 'Lectura inicial', 20, '2024-06-01'),
+(3, 4, 'Lectura experimental de Rayuela', 60, '2024-06-01'),
+(5, 5, 'Lectura completa del libro', 120, '2024-06-03');
 
