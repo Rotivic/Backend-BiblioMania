@@ -49,7 +49,15 @@ public class ListaService {
     	            lista.getUsuario() != null ? new UsuarioDTO(
     	                    lista.getUsuario().getId(), 
     	                    lista.getUsuario().getEmail(), 
-    	                    lista.getUsuario().getName()
+    	                    lista.getUsuario().getName(),
+    	                    lista.getUsuario().getChatColor(),
+    	                    lista.getUsuario().getBio(),
+    	                    lista.getUsuario().getProfileImageUrl(),
+    	                    lista.getUsuario().getIdiomaPreferido(),
+    	                    lista.getUsuario().getFechaRegistro(),
+    	                    lista.getUsuario().getRol(),
+    	                    lista.getUsuario().isActivo()
+    	                    
     	            ) : null,
     	            lista.getLibros() != null ? lista.getLibros().stream()
     	                    .map(libroLista -> libroLista.getLibro() != null ? new LibroDTO(
@@ -58,7 +66,11 @@ public class ListaService {
     	                            libroLista.getLibro().getAuthor(),
     	                            libroLista.getLibro().getIsbn(),
     	                            libroLista.getLibro().getDescription(),
-    	                            libroLista.getLibro().isActivo()
+    	                            libroLista.getLibro().isActivo(),
+    	                            libroLista.getLibro().getPortadaUrl(),
+    	                            libroLista.getLibro().getPaginas(),
+    	                            libroLista.getLibro().getAnioPublicacion(),
+    	                            libroLista.getLibro().getEditorial()
     	                    ) : null)
     	                    .collect(Collectors.toList()) : null
     	    );

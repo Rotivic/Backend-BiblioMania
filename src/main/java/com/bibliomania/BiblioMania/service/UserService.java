@@ -4,19 +4,23 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.bibliomania.BiblioMania.dto.UsuarioDTO;
+import com.bibliomania.BiblioMania.dto.UsuarioRegisterDTO;
 import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.User;
 import com.bibliomania.BiblioMania.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class UserService {
-	
+
     @Autowired
     private UserRepository usuarioRepository;
 
@@ -25,115 +29,97 @@ public class UserService {
 
     @Autowired
     private EmailService emailService;
-    
-    public User registrarUsuario(User usuario) {
-    	usuario.setVerificacionToken(UUID.randomUUID().toString());
-    	usuario.setVerified(false);
-    	usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-    	usuario.setActivo(true); 
-    	usuario.setRol("USER");
-    	User savedUser = usuarioRepository.save(usuario);
-    	
-        // Construye la URL de verificación para el email
-        String verificationUrl = "http://localhost:8080/api/usuarios/verify?token=" + savedUser.getVerificacionToken();
 
-        // Email de verificación (desactivado por ahora)
-        emailService.sendEmail(savedUser.getEmail(), "Verificación de cuenta - BiblioMania", "Verifica tu cuenta aquí: " + verificationUrl);
-    	
-        return savedUser;
+    public UsuarioDTO registrarUsuario(UsuarioRegisterDTO  dto) {
+        User usuario = maptToUser(dto);
+        usuario.setVerificacionToken(UUID.randomUUID().toString());
+        usuario.setVerified(false);
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        usuario.setActivo(true);
+        usuario.setRol("USER");
+        User saved = usuarioRepository.save(usuario);
+        emailService.sendEmail(saved.getEmail(), "Verificación", 
+            "Verifica tu cuenta aquí: http://localhost:8080/api/usuarios/verify?token=" + saved.getVerificacionToken());
+        return mapToDTO(saved);
     }
 
     public User login(String email, String password) {
         User user = usuarioRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Petición muy larga"));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Contraseña no coincide");
-        }
-        if (!user.isActivo()) {
-            throw new RuntimeException("Cuenta inactiva, contacta con soporte.");
-        }
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (!passwordEncoder.matches(password, user.getPassword()))
+            throw new RuntimeException("Contraseña incorrecta");
+        if (!user.isActivo())
+            throw new RuntimeException("Cuenta inactiva");
         return user;
     }
-    
+
     public boolean existeUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).isPresent();
     }
 
-    public User obtenerUsuarioActual() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public UsuarioDTO obtenerUsuarioActual() {
+        return mapToDTO(getAuthenticatedUser());
     }
 
-    public User actualizarUsuario(User usuarioActualizado) {
-        User usuarioExistente = obtenerUsuarioActual();
-
-        usuarioExistente.setName(usuarioActualizado.getName());
-        usuarioExistente.setEmail(usuarioActualizado.getEmail());
-
-        return usuarioRepository.save(usuarioExistente);
+    public UsuarioDTO actualizarUsuario(UsuarioDTO dto) {
+        User usuario = getAuthenticatedUser();
+        usuario.setName(dto.getName());
+        usuario.setEmail(dto.getEmail());
+        usuario.setProfileImageUrl(dto.getProfileImageUrl());
+        usuario.setChatColor(dto.getChatColor());
+        usuario.setBio(dto.getBio());
+        usuario.setIdiomaPreferido(dto.getIdiomaPreferido());
+        return mapToDTO(usuarioRepository.save(usuario));
     }
 
-    public void cambiarPassword(String passwordActual, String passwordNueva) {
-        User usuarioActual = obtenerUsuarioActual();
-
-        if (!passwordEncoder.matches(passwordActual, usuarioActual.getPassword())) {
-            throw new RuntimeException("La contraseña actual es incorrecta");
-        }
-
-        usuarioActual.setPassword(passwordEncoder.encode(passwordNueva));
-        usuarioRepository.save(usuarioActual);
+    public void cambiarPassword(String actual, String nueva) {
+        User usuario = getAuthenticatedUser();
+        if (!passwordEncoder.matches(actual, usuario.getPassword()))
+            throw new RuntimeException("Contraseña actual incorrecta");
+        usuario.setPassword(passwordEncoder.encode(nueva));
+        usuarioRepository.save(usuario);
     }
-    
+
     public void sendVerificacionEmail(String email) {
-        String verificationUrl = "http://localhost:8080/api/users/verify-account?token=" + email;
-        String subject = "Verificación de cuenta";
-        String body = "Por favor, verifica tu cuenta haciendo clic en el siguiente enlace: " + verificationUrl;
-        emailService.sendEmail(email, subject, body);
+        String url = "http://localhost:8080/api/usuarios/verify-account?token=" + email;
+        emailService.sendEmail(email, "Verificación de cuenta", "Haz clic en: " + url);
     }
 
     public void verifyAccount(String token) {
-        User user = usuarioRepository.findByVerificacionToken(token)
-            .orElseThrow(() -> new ResourceNotFoundException("Token no válido"));
-        
-        user.setVerified(true);
-        user.setVerificacionToken(null); // Elimina el token después de la verificación
-        usuarioRepository.save(user);
-    }
-    
-    public User getAuthenticatedUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        String email;
-        if (principal instanceof UserDetails) {
-            email = ((UserDetails) principal).getUsername();
-        } else if (principal instanceof String) {
-            email = (String) principal;
-        } else {
-            throw new RuntimeException("No se pudo determinar el email del usuario autenticado.");
-        }
-
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
-    }
-    
-    public List<User> obtenerTodosUsuarios() {
-        return usuarioRepository.findByActivoTrue(); 
+        User usuario = usuarioRepository.findByVerificacionToken(token)
+            .orElseThrow(() -> new ResourceNotFoundException("Token inválido"));
+        usuario.setVerified(true);
+        usuario.setVerificacionToken(null);
+        usuarioRepository.save(usuario);
     }
 
-    public List<User> obtenerUsuariosDeshabilitados() {
-        return usuarioRepository.findByActivoFalse(); 
+    public List<UsuarioDTO> obtenerTodosUsuarios() {
+        return usuarioRepository.findByActivoTrue()
+                .stream().map(this::mapToDTO).toList();
     }
-    
-    public User editarUsuario(Long id, User usuarioActualizado) {
-        return usuarioRepository.findById(id).map(usuario -> {
-            usuario.setName(usuarioActualizado.getName());
-            usuario.setEmail(usuarioActualizado.getEmail());
-            usuario.setRol(usuarioActualizado.getRol());
-            return usuarioRepository.save(usuario);
-        }).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+    public List<UsuarioDTO> obtenerUsuariosDeshabilitados() {
+        return usuarioRepository.findByActivoFalse()
+                .stream().map(this::mapToDTO).toList();
+    }
+
+    public void reactivarUsuario(Long id) {
+        User usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe usuario"));
+        usuario.setActivo(true);
+        usuarioRepository.save(usuario);
+    }
+
+    public UsuarioDTO editarUsuario(Long id, UsuarioDTO dto) {
+        User usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        usuario.setName(dto.getName());
+        usuario.setEmail(dto.getEmail());
+        usuario.setProfileImageUrl(dto.getProfileImageUrl());
+        usuario.setChatColor(dto.getChatColor());
+        usuario.setBio(dto.getBio());
+        usuario.setIdiomaPreferido(dto.getIdiomaPreferido());
+        return mapToDTO(usuarioRepository.save(usuario));
     }
 
     public void inhabilitarUsuario(Long id) {
@@ -143,10 +129,50 @@ public class UserService {
         usuarioRepository.save(usuario);
     }
 
-    public void reactivarUsuario(Long id) {
-        User usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        usuario.setActivo(true);
-        usuarioRepository.save(usuario);
+    protected User getAuthenticatedUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = (principal instanceof UserDetails)
+                ? ((UserDetails) principal).getUsername()
+                : principal.toString();
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No autenticado"));
+    }
+
+    private UsuarioDTO mapToDTO(User user) {
+        return new UsuarioDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getChatColor(),
+                user.getBio(),
+                user.getIdiomaPreferido(),
+                user.getFechaRegistro(),
+                user.getRol(),
+                user.isActivo()
+        );
+    }
+
+    private User maptToUser(UsuarioRegisterDTO dto) {
+    	 User user = new User();
+         user.setName(dto.getName());
+         user.setEmail(dto.getEmail());
+         user.setPassword(dto.getPassword());
+         return user;
+    }
+    
+    private User mapToEntity(UsuarioDTO dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setProfileImageUrl(dto.getProfileImageUrl());
+        user.setChatColor(dto.getChatColor());
+        user.setBio(dto.getBio());
+        user.setIdiomaPreferido(dto.getIdiomaPreferido());
+        user.setFechaRegistro(dto.getFechaRegistro());
+        user.setRol(dto.getRol());
+        user.setActivo(dto.getActivo() != null ? dto.getActivo() : true);
+        return user;
     }
 }

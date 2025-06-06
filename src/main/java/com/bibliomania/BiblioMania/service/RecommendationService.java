@@ -47,7 +47,11 @@ public class RecommendationService {
             book.getAuthor(),
             book.getIsbn(),
             book.getDescription(),
-            book.isActivo()
+            book.isActivo(),
+            book.getPortadaUrl(),
+            book.getPaginas(),
+            book.getAnioPublicacion(),
+            book.getEditorial()
         );
     }
     

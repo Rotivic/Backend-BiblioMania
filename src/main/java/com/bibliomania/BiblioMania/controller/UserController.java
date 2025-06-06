@@ -2,12 +2,10 @@ package com.bibliomania.BiblioMania.controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bibliomania.BiblioMania.config.JwtUtil;
 import com.bibliomania.BiblioMania.dto.PasswordChangeRequest;
+import com.bibliomania.BiblioMania.dto.UsuarioDTO;
+import com.bibliomania.BiblioMania.dto.UsuarioRegisterDTO;
 import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.User;
-import com.bibliomania.BiblioMania.repository.UserRepository;
 import com.bibliomania.BiblioMania.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +39,7 @@ public class UserController {
     private JwtUtil jwtTokenUtil; 
    
     @PostMapping("/register")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody User usuario, BindingResult result) {
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioRegisterDTO usuario, BindingResult result) {
         if (result.hasErrors()) {
             // Devuelve el primer error encontrado (puedes personalizar esto)
             String errorMsg = result.getFieldError().getDefaultMessage();
@@ -51,13 +50,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El email ya está registrado.");
         }
 
-        User nuevoUsuario = usuarioService.registrarUsuario(usuario);
+        UsuarioDTO nuevoUsuario = usuarioService.registrarUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
     }
 
   
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User usuario) {
+    public ResponseEntity<?> login(@RequestBody UsuarioRegisterDTO usuario) {
     	   try {
                User autenticado = usuarioService.login(usuario.getEmail(), usuario.getPassword());
                String token = jwtTokenUtil.generateToken(autenticado.getEmail());
@@ -69,8 +68,8 @@ public class UserController {
     }
     
     @GetMapping("/me")
-    public ResponseEntity<?> obtenerPerfil() {
-        User usuario = usuarioService.obtenerUsuarioActual();
+    public ResponseEntity<UsuarioDTO> obtenerPerfil() {
+        UsuarioDTO usuario = usuarioService.obtenerUsuarioActual();
         return ResponseEntity.ok(usuario);
     }
     
@@ -81,8 +80,8 @@ public class UserController {
     }
     
     @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarUsuario(@RequestBody User usuarioActualizado) {
-        User actualizado = usuarioService.actualizarUsuario(usuarioActualizado);
+    public ResponseEntity<?> actualizarUsuario(@RequestBody UsuarioDTO usuarioActualizado) {
+        UsuarioDTO actualizado = usuarioService.actualizarUsuario(usuarioActualizado);
         return ResponseEntity.ok(actualizado);
     }
     
@@ -119,18 +118,18 @@ public class UserController {
     
     // Obtener usuarios activos
     @GetMapping("/activos")
-    public ResponseEntity<List<User>> obtenerUsuariosActivos() {
-        List<User> usuariosActivos = usuarioService.obtenerTodosUsuarios()
+    public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosActivos() {
+        List<UsuarioDTO> usuariosActivos = usuarioService.obtenerTodosUsuarios()
                 .stream()
-                .filter(User::isVerified) // Solo los verificados
+                .filter(UsuarioDTO::isActivo) // Solo los verificados
                 .toList();
         return ResponseEntity.ok(usuariosActivos);
     }
 
     // Obtener usuarios deshabilitados
     @GetMapping("/deshabilitados")
-    public ResponseEntity<List<User>> obtenerUsuariosDeshabilitados() {
-        return ResponseEntity.ok(usuarioService.obtenerUsuariosDeshabilitados());
+    public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosDeshabilitados() {
+        return (ResponseEntity<List<UsuarioDTO>>) ResponseEntity.ok(usuarioService.obtenerUsuariosDeshabilitados());
     }
 
     // Reactivar usuario
@@ -142,9 +141,9 @@ public class UserController {
 
     // 🔹 Editar usuario
     @PutMapping("/{id}")
-    public ResponseEntity<?> editarUsuario(@PathVariable Long id, @RequestBody User usuarioActualizado) {
+    public ResponseEntity<?> editarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuarioActualizado) {
         try {
-            User actualizado = usuarioService.editarUsuario(id, usuarioActualizado);
+            UsuarioDTO actualizado = usuarioService.editarUsuario(id, usuarioActualizado);
             return ResponseEntity.ok(actualizado);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");

@@ -10,8 +10,16 @@ CREATE TABLE IF NOT EXISTS user (
     rol ENUM('USER', 'ADMIN') NOT NULL,
     verificacion_token VARCHAR(255),
     is_verified BOOLEAN DEFAULT 0,
-    activo BOOLEAN DEFAULT 1
+    activo BOOLEAN DEFAULT 1,
+
+    -- Nuevos campos
+    profile_image_url VARCHAR(512),
+    chat_color VARCHAR(20),
+    bio VARCHAR(255),
+    idioma_preferido VARCHAR(10),
+    fecha_registro DATETIME
 );
+
 
 -- 📚 Libros
 CREATE TABLE IF NOT EXISTS book (
@@ -20,8 +28,13 @@ CREATE TABLE IF NOT EXISTS book (
     author VARCHAR(255) NOT NULL,
     description TEXT,
     isbn VARCHAR(20) UNIQUE,
+    portada_url VARCHAR(512),
+    paginas INT,
+    anio_publicacion INT,
+    editorial VARCHAR(255),
     activo BOOLEAN DEFAULT 1
 );
+
 
 -- ✍️ Reseñas
 CREATE TABLE IF NOT EXISTS reviews (
@@ -167,20 +180,28 @@ CREATE TABLE IF NOT EXISTS actividad_lectura (
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 👤 Usuarios
-INSERT INTO user (id_usuario, name, email, password, rol, is_verified, activo, verificacion_token) VALUES
-(1, 'Juan Pérez', 'juan@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c'),
-(2, 'María López', 'maria@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c'),
-(3, 'Carlos Ruiz', 'carlos@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c'),
-(4, 'Ana Torres', 'ana@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c'),
-(5, 'Lucía Gómez', 'lucia@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'ADMIN', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c');
+INSERT INTO user (
+    id_usuario, name, email, password, rol, is_verified, activo, verificacion_token,
+    profile_image_url, chat_color, bio, idioma_preferido, fecha_registro
+) VALUES
+(1, 'Juan Pérez', 'juan@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c',
+ '/images/juan.jpg', '#ff5733', 'Amante de la literatura fantástica', 'es', NOW()),
+(2, 'María López', 'maria@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c',
+ '/images/maria.jpg', '#33c4ff', 'Fan de la novela histórica', 'es', NOW()),
+(3, 'Carlos Ruiz', 'carlos@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c',
+ NULL, '#9b59b6', NULL, 'es', NOW()),
+(4, 'Ana Torres', 'ana@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'USER', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c',
+ '/images/ana.jpg', '#2ecc71', 'Exploradora de libros clásicos', 'es', NOW()),
+(5, 'Lucía Gómez', 'lucia@example.com', '$2a$10$NUMT7poYywJRJPjl9zAiS.xeRgPU0YqjgTm6wuIMb4s0r1e9AN44q', 'ADMIN', 1, 1, 'e15f2e2a-5ad0-4b47-b061-e159e02cf97c',
+ '/images/lucia.jpg', '#f1c40f', 'Administradora y amante de la ciencia ficción', 'es', NOW());
 
 -- 📚 Libros
-INSERT INTO book (id_libro, title, author, description, isbn, activo) VALUES
-(1, 'Cien Años de Soledad', 'Gabriel García Márquez', 'Realismo Mágico', '1234567890', 1),
-(2, 'Don Quijote de la Mancha', 'Miguel de Cervantes', 'Novela', '0987654321', 1),
-(3, 'El Principito', 'Antoine de Saint-Exupéry', 'Ficción', '1122334455', 1),
-(4, 'Rayuela', 'Julio Cortázar', 'Narrativa experimental', '2233445566', 1),
-(5, 'La Sombra del Viento', 'Carlos Ruiz Zafón', 'Misterio', '3344556677', 1);
+INSERT INTO book (id_libro, title, author, description, isbn, portada_url, paginas, anio_publicacion, editorial, activo) VALUES
+(1, 'Cien Años de Soledad', 'Gabriel García Márquez', 'Realismo Mágico', '1234567890', 'https://ejemplo.com/cien-anos.jpg', 417, 1967, 'Editorial Sudamericana', 1),
+(2, 'Don Quijote de la Mancha', 'Miguel de Cervantes', 'Novela', '0987654321', 'https://ejemplo.com/don-quijote.jpg', 863, 1605, 'Francisco de Robles', 1),
+(3, 'El Principito', 'Antoine de Saint-Exupéry', 'Ficción', '1122334455', 'https://ejemplo.com/el-principito.jpg', 96, 1943, 'Reynal & Hitchcock', 1),
+(4, 'Rayuela', 'Julio Cortázar', 'Narrativa experimental', '2233445566', 'https://ejemplo.com/rayuela.jpg', 736, 1963, 'Editorial Sudamericana', 1),
+(5, 'La Sombra del Viento', 'Carlos Ruiz Zafón', 'Misterio', '3344556677', 'https://ejemplo.com/sombra-viento.jpg', 565, 2001, 'Planeta', 1);
 
 -- ⭐ Reseñas
 INSERT INTO reviews (id_usuario, id_libro, comentario, calificacion) VALUES

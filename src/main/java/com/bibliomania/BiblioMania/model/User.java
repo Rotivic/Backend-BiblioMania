@@ -1,8 +1,19 @@
 package com.bibliomania.BiblioMania.model;
 
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,6 +35,12 @@ public class User {
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
     private String rol;
+    private String profileImageUrl;
+    private String chatColor;
+    @Size(max = 255)
+    private String bio;
+    private LocalDateTime fechaRegistro;
+    private String idiomaPreferido;
     
     private String verificacionToken;
     private boolean isVerified = false;
@@ -99,5 +116,47 @@ public class User {
     public void setActivo(boolean activo) {
         this.activo = activo;
     }
+
+	public String getProfileImageUrl() {
+		return profileImageUrl;
+	}
+
+	public void setProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public String getChatColor() {
+		return chatColor;
+	}
+
+	public void setChatColor(String chatColor) {
+		this.chatColor = chatColor;
+	}
+
+	public String getBio() {
+		return bio;
+	}
+
+	public void setBio(String bio) {
+		this.bio = bio;
+	}
+
+	public LocalDateTime getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(LocalDateTime fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
+	}
+
+	public String getIdiomaPreferido() {
+		return idiomaPreferido;
+	}
+
+	public void setIdiomaPreferido(String idiomaPreferido) {
+		this.idiomaPreferido = idiomaPreferido;
+	}
+    
+    
     
 }

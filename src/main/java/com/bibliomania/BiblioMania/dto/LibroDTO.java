@@ -7,19 +7,33 @@ public class LibroDTO {
     private String isbn;
     private String description;
     private boolean activo;
-
+    private String portadaUrl;
+    private int paginas;
+    private int anioPublicacion;
+    private String editorial;
+    
     public LibroDTO() {}
 
-    public LibroDTO(Long id, String title, String author, String isbn, String description, boolean activo) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.isbn = isbn;
-        this.description = description;
-        this.activo = activo;
-    }
+    
 
-    public Long getId() { return id; }
+    public LibroDTO(Long id, String title, String author, String isbn, String description, boolean activo,
+			String portadaUrl, int paginas, int anioPublicacion, String editorial) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.author = author;
+		this.isbn = isbn;
+		this.description = description;
+		this.activo = activo;
+		this.portadaUrl = portadaUrl;
+		this.paginas = paginas;
+		this.anioPublicacion = anioPublicacion;
+		this.editorial = editorial;
+	}
+
+
+
+	public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getTitle() { return title; }
@@ -36,5 +50,56 @@ public class LibroDTO {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+
+
+	public String getPortadaUrl() {
+		return portadaUrl;
+	}
+
+
+
+	public void setPortadaUrl(String portadaUrl) {
+		this.portadaUrl = portadaUrl;
+	}
+
+
+
+	public int getPaginas() {
+		return paginas;
+	}
+
+
+
+	public void setPaginas(int paginas) {
+		this.paginas = paginas;
+	}
+
+
+
+	public int getAnioPublicacion() {
+		return anioPublicacion;
+	}
+
+
+
+	public void setAnioPublicacion(int anioPublicacion) {
+		this.anioPublicacion = anioPublicacion;
+	}
+
+
+
+	public String getEditorial() {
+		return editorial;
+	}
+
+
+
+	public void setEditorial(String editorial) {
+		this.editorial = editorial;
+	}
+    
+    
+    
 }
 

@@ -19,12 +19,16 @@ public class BookService {
 
     private LibroDTO convertirABookDTO(Book book) {
         return new LibroDTO(
-                book.getId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getIsbn(),
-                book.getDescription(),
-                book.isActivo()
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getIsbn(),
+            book.getDescription(),
+            book.isActivo(),
+            book.getPortadaUrl(),
+            book.getPaginas(),
+            book.getAnioPublicacion(),
+            book.getEditorial()
         );
     }
 
@@ -36,6 +40,10 @@ public class BookService {
         book.setIsbn(libroDTO.getIsbn());
         book.setDescription(libroDTO.getDescription());
         book.setActivo(libroDTO.isActivo());
+        book.setPortadaUrl(libroDTO.getPortadaUrl());
+        book.setPaginas(libroDTO.getPaginas());
+        book.setAnioPublicacion(libroDTO.getAnioPublicacion());
+        book.setEditorial(libroDTO.getEditorial());
         return book;
     }
 

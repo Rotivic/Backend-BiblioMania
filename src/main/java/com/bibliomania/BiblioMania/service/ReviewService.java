@@ -37,7 +37,7 @@ public class ReviewService {
 		        UsuarioDTO usuarioDTO = new UsuarioDTO();
 		        usuarioDTO.setId(review.getUsuario().getId());
 		        usuarioDTO.setEmail(review.getUsuario().getEmail());
-		        usuarioDTO.setNombre(review.getUsuario().getName());
+		        usuarioDTO.setName(review.getUsuario().getName());
 		        dto.setUsuario(usuarioDTO);
 		    }
 		    if (review.getLibro() != null) {

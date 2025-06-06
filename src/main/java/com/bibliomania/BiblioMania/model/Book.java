@@ -32,6 +32,19 @@ public class Book {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(name = "portada_url")
+    private String portadaUrl;
+
+    @Column(name = "paginas")
+    private int paginas;
+
+    @Column(name = "anio_publicacion")
+    private int anioPublicacion;
+
+    @Column(name = "editorial")
+    private String editorial;
+
+    
     @PrePersist
     public void prePersist() {
         if (!activo) activo = true;  
@@ -96,7 +109,32 @@ public class Book {
     public void setActivo(boolean activo) {
         this.activo = activo;
     }
+	public String getPortadaUrl() {
+		return portadaUrl;
+	}
+	public void setPortadaUrl(String portadaUrl) {
+		this.portadaUrl = portadaUrl;
+	}
+	public int getPaginas() {
+		return paginas;
+	}
+	public void setPaginas(int paginas) {
+		this.paginas = paginas;
+	}
+	public int getAnioPublicacion() {
+		return anioPublicacion;
+	}
+	public void setAnioPublicacion(int anioPublicacion) {
+		this.anioPublicacion = anioPublicacion;
+	}
+	public String getEditorial() {
+		return editorial;
+	}
+	public void setEditorial(String editorial) {
+		this.editorial = editorial;
+	}
     
-
+    
+    
     
 }
