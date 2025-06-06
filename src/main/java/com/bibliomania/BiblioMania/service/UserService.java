@@ -63,12 +63,14 @@ public class UserService {
 
     public UsuarioDTO actualizarUsuario(UsuarioDTO dto) {
         User usuario = getAuthenticatedUser();
-        usuario.setName(dto.getName());
-        usuario.setEmail(dto.getEmail());
-        usuario.setProfileImageUrl(dto.getProfileImageUrl());
-        usuario.setChatColor(dto.getChatColor());
-        usuario.setBio(dto.getBio());
-        usuario.setIdiomaPreferido(dto.getIdiomaPreferido());
+        
+        if (dto.getName() != null) usuario.setName(dto.getName());
+        if (dto.getEmail() != null) usuario.setEmail(dto.getEmail());
+        if (dto.getProfileImageUrl() != null) usuario.setProfileImageUrl(dto.getProfileImageUrl());
+        if (dto.getChatColor() != null) usuario.setChatColor(dto.getChatColor());
+        if (dto.getBio() != null) usuario.setBio(dto.getBio());
+        if (dto.getIdiomaPreferido() != null) usuario.setIdiomaPreferido(dto.getIdiomaPreferido());
+       
         return mapToDTO(usuarioRepository.save(usuario));
     }
 

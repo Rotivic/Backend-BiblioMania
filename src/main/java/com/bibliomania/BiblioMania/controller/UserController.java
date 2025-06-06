@@ -80,7 +80,7 @@ public class UserController {
     }
     
     @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarUsuario(@RequestBody UsuarioDTO usuarioActualizado) {
+    public ResponseEntity<?> actualizarUsuario(@Valid @RequestBody UsuarioDTO usuarioActualizado) {
         UsuarioDTO actualizado = usuarioService.actualizarUsuario(usuarioActualizado);
         return ResponseEntity.ok(actualizado);
     }
