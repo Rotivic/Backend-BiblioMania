@@ -78,10 +78,37 @@ public class BookService {
         Book existingBook = bookRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con ISBN: " + isbn));
 
-        existingBook.setTitle(updatedLibroDTO.getTitle());
-        existingBook.setAuthor(updatedLibroDTO.getAuthor());
-        existingBook.setDescription(updatedLibroDTO.getDescription());
+        if (updatedLibroDTO.getTitle() != null) {
+            existingBook.setTitle(updatedLibroDTO.getTitle());
+        }
 
+        if (updatedLibroDTO.getAuthor() != null) {
+            existingBook.setAuthor(updatedLibroDTO.getAuthor());
+        }
+
+        if (updatedLibroDTO.getDescription() != null) {
+            existingBook.setDescription(updatedLibroDTO.getDescription());
+        }
+
+        if (updatedLibroDTO.getEditorial() != null) {
+            existingBook.setEditorial(updatedLibroDTO.getEditorial());
+        }
+
+        if (updatedLibroDTO.getAnioPublicacion() != null) {
+            existingBook.setAnioPublicacion(updatedLibroDTO.getAnioPublicacion());
+        }
+
+        if (updatedLibroDTO.getPaginas() != null) {
+            existingBook.setPaginas(updatedLibroDTO.getPaginas());
+        }
+
+        if (updatedLibroDTO.getPortadaUrl() != null) {
+            existingBook.setPortadaUrl(updatedLibroDTO.getPortadaUrl());
+        }
+
+
+        
+        
         return convertirABookDTO(bookRepository.save(existingBook));
     }
 

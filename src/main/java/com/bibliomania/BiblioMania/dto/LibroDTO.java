@@ -8,8 +8,8 @@ public class LibroDTO {
     private String description;
     private boolean activo;
     private String portadaUrl;
-    private int paginas;
-    private int anioPublicacion;
+    private Integer paginas;
+    private Integer anioPublicacion;
     private String editorial;
     
     public LibroDTO() {}
@@ -65,7 +65,7 @@ public class LibroDTO {
 
 
 
-	public int getPaginas() {
+	public Integer getPaginas() {
 		return paginas;
 	}
 
@@ -77,7 +77,7 @@ public class LibroDTO {
 
 
 
-	public int getAnioPublicacion() {
+	public Integer getAnioPublicacion() {
 		return anioPublicacion;
 	}
 
