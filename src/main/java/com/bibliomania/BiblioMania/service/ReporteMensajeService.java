@@ -1,6 +1,7 @@
 package com.bibliomania.BiblioMania.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -26,7 +27,8 @@ public class ReporteMensajeService {
     private ReporteMensajeDTO convertirADTO(ReporteMensaje reporte) {
         ReporteMensajeDTO dto = new ReporteMensajeDTO();
         dto.setMensajeId(reporte.getId());
-        dto.setMensajeId(reporte.getMensaje().getIdMessage()); // Asegúrate que sea getId() o getIdMessage()
+        Optional.ofNullable(reporte.getMensaje())
+        .ifPresent(m -> dto.setMensajeId(m.getIdMessage()));// Asegúrate que sea getId() o getIdMessage()
         dto.setUsuarioId(reporte.getReportadoPor().getId());
         dto.setMotivo(reporte.getMotivo());
         dto.setUrgencia(reporte.getUrgencia()); // Si es Enum
@@ -132,6 +134,14 @@ public class ReporteMensajeService {
         r.setEstado(nuevoEstado);
         ReporteMensaje actualizado = reporteMensajeRepository.save(r);
 
+        // 🔔 Notificar al usuario que hizo el reporte
+        String titulo = "📌 Estado de tu reporte actualizado";
+        String contenido = "Tu reporte " +
+            (actualizado.getMensaje() != null ? "sobre un mensaje" : "general") +
+            " ha sido actualizado a: " + nuevoEstado.name();
+
+        notificationDispatcher.dispatchToUser(actualizado.getReportadoPor().getId(), titulo, contenido);
+        
         return new ReporteMensajeDTO(
             actualizado.getId(),
             actualizado.getMensaje() != null ? actualizado.getMensaje().getIdMessage() : null, // 🔁 prevenir null

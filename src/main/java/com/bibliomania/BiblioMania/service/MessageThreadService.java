@@ -80,4 +80,9 @@ public class MessageThreadService {
 		}
 		messageRepository.deleteById(messageId);
 	}
+	
+	public Message getMessageById(Long messageId) {
+	    return messageRepository.findById(messageId)
+	        .orElseThrow(() -> new ResourceNotFoundException("Mensaje no encontrado con id: " + messageId));
+	}
 }

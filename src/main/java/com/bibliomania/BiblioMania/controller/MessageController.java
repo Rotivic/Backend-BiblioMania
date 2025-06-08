@@ -46,4 +46,12 @@ public class MessageController {
         messageService.deleteMessage(messageId);
         return ResponseEntity.ok("Mensaje eliminado exitosamente.");
     }
+    
+    @GetMapping("/{messageId}")
+    public ResponseEntity<MessageDTO> getMessageById(@PathVariable Long messageId) {
+        Message message = messageService.getMessageById(messageId);
+        return ResponseEntity.ok(new MessageDTO(message));
+    }
+
+    
 }
