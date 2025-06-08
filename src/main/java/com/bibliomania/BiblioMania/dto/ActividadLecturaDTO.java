@@ -8,7 +8,7 @@ public class ActividadLecturaDTO {
     private Long usuarioId;
     private String isbn;
     private String descripcion;
-    private int minutosInvertidos;
+    private Integer minutosInvertidos;
     private LocalDate fecha;
 
     public ActividadLecturaDTO() {}
@@ -58,7 +58,7 @@ public class ActividadLecturaDTO {
 		this.descripcion = descripcion;
 	}
 
-	public int getMinutosInvertidos() {
+	public Integer getMinutosInvertidos() {
 		return minutosInvertidos;
 	}
 

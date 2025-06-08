@@ -23,6 +23,17 @@ public class ActividadLecturaService {
     @Autowired
     private BookRepository bookRepo;
 
+    private ActividadLecturaDTO convertirAActividadLecturaDTO(ActividadLectura actividad) {
+        ActividadLecturaDTO dto = new ActividadLecturaDTO();
+        dto.setId(actividad.getId()); // Si tienes id en DTO, si no lo quitas
+        dto.setUsuarioId(actividad.getUsuario().getId());
+        dto.setIsbn(actividad.getLibro().getIsbn());
+        dto.setDescripcion(actividad.getDescripcion());
+        dto.setMinutosInvertidos(actividad.getMinutosInvertidos());
+        dto.setFecha(actividad.getFecha());
+        return dto;
+    }
+    
     public ActividadLecturaDTO crearActividad(ActividadLecturaDTO dto) {
         ActividadLectura act = new ActividadLectura();
         act.setUsuario(userRepo.findById(dto.getUsuarioId()).orElseThrow());
@@ -56,7 +67,25 @@ public class ActividadLecturaService {
             .toList();
     }
 
-    public void eliminar(Long id) {
+    public ActividadLecturaDTO updateActividad(Long id, ActividadLecturaDTO dto) {
+        ActividadLectura actividad = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
+
+        if (dto.getIsbn() != null) actividad.getLibro().setIsbn(dto.getIsbn());
+        if (dto.getDescripcion() != null) actividad.setDescripcion(dto.getDescripcion());
+        if (dto.getMinutosInvertidos() != null) actividad.setMinutosInvertidos(dto.getMinutosInvertidos());
+        if (dto.getFecha() != null) actividad.setFecha(dto.getFecha());
+
+        return convertirAActividadLecturaDTO(repo.save(actividad));
+    }
+    
+    public void deleteActividad(Long id) {
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Actividad no encontrada");
+        }
         repo.deleteById(id);
     }
+    
+    
+    
 }

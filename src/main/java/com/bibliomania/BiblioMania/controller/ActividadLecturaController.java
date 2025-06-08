@@ -28,7 +28,12 @@ public class ActividadLecturaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarActividad(@PathVariable Long id) {
-        service.eliminar(id);
+        service.deleteActividad(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ActividadLecturaDTO> updateActividad(@PathVariable Long id, @RequestBody ActividadLecturaDTO dto) {
+    	 return ResponseEntity.ok(service.updateActividad(id, dto));
     }
 }
