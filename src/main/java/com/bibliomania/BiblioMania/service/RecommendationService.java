@@ -108,7 +108,7 @@ public class RecommendationService {
         }
 
         // Paso 4: si está vacío o incompleto, rellenar con libros de otras categorías
-        if (result.size() == 0) {
+        if (result.size() < 15) {
             List<LibroDTO> librosSugeridos = bookRepo.findAll().stream()
                 .filter(Book::getActivo)
                 .filter(libro -> !excluidos.contains(libro.getId()))

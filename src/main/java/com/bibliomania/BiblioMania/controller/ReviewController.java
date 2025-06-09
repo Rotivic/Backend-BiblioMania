@@ -39,8 +39,8 @@ public class ReviewController {
     }
 
     @GetMapping("/libro/{libroIsbn}")
-    public List<ReviewDTO> getReviewsByBookId(@PathVariable Long libroIsbn) {
-        return reviewService.getReviewsByBookId(libroIsbn.toString());
+    public List<ReviewDTO> getReviewsByBookId(@PathVariable String libroIsbn) {
+        return reviewService.getReviewsByBookId(libroIsbn);
     }
     
     @GetMapping("/user/{userId}")

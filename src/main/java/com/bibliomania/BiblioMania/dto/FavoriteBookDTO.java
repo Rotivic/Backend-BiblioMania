@@ -7,12 +7,14 @@ public class FavoriteBookDTO {
     private String isbn;
     private String tituloLibro;
     private Long userId;
-
+    private String author;
+    
     public FavoriteBookDTO(FavoriteBook favorite) {
         this.id = favorite.getId();
         this.isbn = favorite.getLibro().getIsbn();
         this.tituloLibro = favorite.getLibro().getTitle();
         this.userId = favorite.getUsuario().getId();
+        this.author = favorite.getLibro().getAuthor();
     }
 
 
@@ -49,5 +51,26 @@ public class FavoriteBookDTO {
 		this.userId = userId;
 	}
 
+
+	public String getIsbn() {
+		return isbn;
+	}
+
+
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
+	}
+
+
+	public String getAuthor() {
+		return author;
+	}
+
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	
     
 }
