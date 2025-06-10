@@ -56,7 +56,8 @@ public class ListaService {
     	                    lista.getUsuario().getIdiomaPreferido(),
     	                    lista.getUsuario().getFechaRegistro(),
     	                    lista.getUsuario().getRol(),
-    	                    lista.getUsuario().isActivo()
+    	                    lista.getUsuario().isActivo(),
+    	                    lista.getUsuario().isVerified()
     	                    
     	            ) : null,
     	            lista.getLibros() != null ? lista.getLibros().stream()

@@ -13,11 +13,13 @@ public class EmailService {
 
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("victormfdezfdez@gmail.com");  // Opcional si has configurado spring.mail.from
         message.setTo(to);
+        message.setFrom("info@rotviclab.es"); // Asegúrate de que es solo ASCII
         message.setSubject(subject);
         message.setText(body);
 
         mailSender.send(message);
     }
+
+    
 }

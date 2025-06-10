@@ -14,11 +14,12 @@ public class UsuarioDTO {
 	    private LocalDateTime fechaRegistro;
 	    private String rol;
 	    private Boolean activo;
+	    private Boolean isVerified;
 	    
     public UsuarioDTO() {}
 
 	public UsuarioDTO(Long id, String name, String email, String profileImageUrl, String chatColor, String bio,
-			String idiomaPreferido, LocalDateTime fechaRegistro, String rol, Boolean activo) {
+			String idiomaPreferido, LocalDateTime fechaRegistro, String rol, Boolean activo, Boolean isVerified) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -30,6 +31,7 @@ public class UsuarioDTO {
 		this.fechaRegistro = fechaRegistro;
 		this.rol = rol;
 		this.activo = activo;
+		this.isVerified = isVerified;
 	}
 
 
@@ -104,6 +106,14 @@ public class UsuarioDTO {
 
 	public String getName() {
 		return name;
+	}
+
+	public Boolean getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(Boolean isVerified) {
+		this.isVerified = isVerified;
 	}
     
 	

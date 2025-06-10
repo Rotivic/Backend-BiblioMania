@@ -1,6 +1,7 @@
 package com.bibliomania.BiblioMania.service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +31,24 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
+    
+    private String generateCode() {
+        return String.format("%06d", new Random().nextInt(999999)); // 6 dígitos
+    }
+    
     public UsuarioDTO registrarUsuario(UsuarioRegisterDTO  dto) {
+    	
+    	String userCode = generateCode();
+    	
         User usuario = maptToUser(dto);
-        usuario.setVerificacionToken(UUID.randomUUID().toString());
+        usuario.setVerificacionToken(userCode);
         usuario.setVerified(false);
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         usuario.setActivo(true);
         usuario.setRol("USER");
         User saved = usuarioRepository.save(usuario);
         emailService.sendEmail(saved.getEmail(), "Verificación", 
-            "Verifica tu cuenta aquí: http://localhost:8080/api/usuarios/verify?token=" + saved.getVerificacionToken());
+            "Verifica tu cuenta con este código: " + userCode);
         return mapToDTO(saved);
     }
 
@@ -151,7 +160,8 @@ public class UserService {
                 user.getIdiomaPreferido(),
                 user.getFechaRegistro(),
                 user.getRol(),
-                user.isActivo()
+                user.isActivo(),
+                user.isVerified()
         );
     }
 

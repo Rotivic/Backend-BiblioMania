@@ -1,5 +1,6 @@
 package com.bibliomania.BiblioMania.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -13,15 +14,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bibliomania.BiblioMania.config.JwtUtil;
 import com.bibliomania.BiblioMania.dto.PasswordChangeRequest;
 import com.bibliomania.BiblioMania.dto.UsuarioDTO;
 import com.bibliomania.BiblioMania.dto.UsuarioRegisterDTO;
+import com.bibliomania.BiblioMania.dto.VerificationRequestDTO;
 import com.bibliomania.BiblioMania.exception.ResourceNotFoundException;
 import com.bibliomania.BiblioMania.model.User;
+import com.bibliomania.BiblioMania.repository.UserRepository;
 import com.bibliomania.BiblioMania.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +36,9 @@ public class UserController {
 
     @Autowired
     private UserService usuarioService;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @Autowired
     private JwtUtil jwtTokenUtil; 
@@ -102,19 +107,24 @@ public class UserController {
         }
     }
     
-    @GetMapping("/verify-account")
-    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) {
-        try {
-        	usuarioService.verifyAccount(token);
-            return ResponseEntity.ok("Cuenta verificada exitosamente.");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Token no válido o expirado.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error al verificar la cuenta.");
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody VerificationRequestDTO request) {
+        User usuario = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (usuario.isVerified()) {
+            return ResponseEntity.badRequest().body("Cuenta ya verificada");
         }
+
+        
+
+        usuario.setVerified(true);
+        usuario.setVerificacionToken(null); // limpieza
+        userRepository.save(usuario);
+
+        return ResponseEntity.ok("Cuenta verificada correctamente");
     }
+
     
     // Obtener usuarios activos
     @GetMapping("/activos")
