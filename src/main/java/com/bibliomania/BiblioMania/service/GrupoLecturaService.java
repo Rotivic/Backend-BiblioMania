@@ -106,4 +106,18 @@ public class GrupoLecturaService {
     public boolean isUserMember(Long userId, Long grupoId) {
         return usuariosGruposRepository.isUserInGroup(userId, grupoId);
     }
+
+   public List<GrupoLecturaDTO> getGruposPorUsuario(Long userId) {
+        List<UsuariosGrupos> relaciones = usuariosGruposRepository.findByUsuarioId(userId);
+
+        return relaciones.stream()
+            .map(rel -> {
+                GrupoLectura grupo = rel.getGrupo();
+                long totalMiembros = usuariosGruposRepository.countUsersInGroup(grupo.getidGrupo());
+                return new GrupoLecturaDTO(grupo, totalMiembros);
+            })
+            .collect(Collectors.toList());
+    }
+
 }
+

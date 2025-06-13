@@ -65,4 +65,11 @@ public class GrupoLecturaController {
         boolean isMember = grupoLecturaService.isUserMember(userId, grupoId);
         return ResponseEntity.ok(isMember);
     }
+
+   @GetMapping("/usuario/{userId}")
+    public ResponseEntity<List<GrupoLecturaDTO>> getGruposPorUsuario(@PathVariable Long userId) {
+        List<GrupoLecturaDTO> grupos = grupoLecturaService.getGruposPorUsuario(userId);
+        return ResponseEntity.ok(grupos);
+    }
+
 }

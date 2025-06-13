@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 public interface UsuariosGruposRepository extends JpaRepository<UsuariosGrupos, UsuariosGruposId> {
     void deleteById(UsuariosGruposId id);
     boolean existsById(UsuariosGruposId id);
+    List<UsuariosGrupos> findByUsuarioId(Long userId);
+
 
     @Query("SELECT COUNT(u) FROM UsuariosGrupos u WHERE u.grupo.id = :grupoId")
     long countUsersInGroup(@Param("grupoId") Long grupoId);

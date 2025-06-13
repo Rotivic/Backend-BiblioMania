@@ -14,7 +14,20 @@ public class LibroDTO {
     
     public LibroDTO() {}
 
-    
+	public LibroDTO(String title, String author, String isbn, String description, boolean activo,
+                        String portadaUrl, int paginas, int anioPublicacion, String editorial) {
+                super();
+                
+                this.title = title;
+                this.author = author;
+                this.isbn = isbn;
+                this.description = description;
+                this.activo = activo;
+                this.portadaUrl = portadaUrl;
+                this.paginas = paginas;
+                this.anioPublicacion = anioPublicacion;
+                this.editorial = editorial;
+        }    
 
     public LibroDTO(Long id, String title, String author, String isbn, String description, boolean activo,
 			String portadaUrl, int paginas, int anioPublicacion, String editorial) {
